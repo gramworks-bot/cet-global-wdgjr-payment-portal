@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>WDG(JR+) Payment Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: four inputs drive one client-centric explanation — a plain-language opener, six tiles, one payment table, a footnote —
+   followed by for-info cards. Colour lanes: the client in CET Global orange, the Programme Partner's grant in navy, SFEC in brand yellow. */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --surface-2:#F8FAFC; --line:#D8DFE7; --line-strong:#B9C4CF;
+  --fg:#1B2733; --muted:#5B6C7C; --faint:#8A99A8;
+  --you:#E8820F; --you-ink:#A8590A; --you-soft:#FDEBD7; --you-line:#F3C38B; --you-on:#FFFFFF;
+  --pp:#1F4E6E; --pp-ink:#1F4E6E; --pp-soft:#DFEAF3; --pp-line:#A4C0D6; --pp-on:#FFFFFF;
+  --gst-soft:#EEF1F4; --gst-ink:#4C5B6A;
+  --sfec:#C99400; --sfec-ink:#7A5A00; --sfec-soft:#FFF4CC; --sfec-line:#F0D27A;
+  --warn-soft:#FDECEC; --warn-ink:#9B2C2C; --warn-line:#F0B4B4;
+  --ccp:#1F7A6D; --ccp-ink:#176256; --ccp-soft:#E3F3EF; --ccp-line:#A5D6CB;
+  --gain:#1E8449; --gain-ink:#15663A; --gain-soft:#E4F5EA; --gain-line:#9FD6B4;
+  --focus:#1F4E6E; --shadow:0 1px 2px rgba(27,39,51,.05),0 8px 24px rgba(27,39,51,.06);
+  --font-display:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F171F; --surface:#172029; --surface-2:#1C2733; --line:#2B3947; --line-strong:#3E4F60;
+    --fg:#E8EEF4; --muted:#A3B2C1; --faint:#7C8B9A;
+    --you:#FFA447; --you-ink:#FFB865; --you-soft:#3A2812; --you-line:#7B4F18; --you-on:#1B1206;
+    --pp:#7DB5DA; --pp-ink:#9FCAE8; --pp-soft:#15283A; --pp-line:#2F5677; --pp-on:#0B1820;
+    --gst-soft:#222E3A; --gst-ink:#B6C3D0;
+    --sfec:#F2C94C; --sfec-ink:#F6D97A; --sfec-soft:#3A3012; --sfec-line:#7A6418;
+    --warn-soft:#3A1E1E; --warn-ink:#F2A0A0; --warn-line:#7A3B3B;
+    --ccp:#5FC3B2; --ccp-ink:#8ADBCC; --ccp-soft:#12302B; --ccp-line:#246B5F;
+    --gain:#5CCB8A; --gain-ink:#8EE2AF; --gain-soft:#13301F; --gain-line:#2A6B45;
+    --focus:#7DB5DA; --shadow:none;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F171F; --surface:#172029; --surface-2:#1C2733; --line:#2B3947; --line-strong:#3E4F60;
+  --fg:#E8EEF4; --muted:#A3B2C1; --faint:#7C8B9A;
+  --you:#FFA447; --you-ink:#FFB865; --you-soft:#3A2812; --you-line:#7B4F18; --you-on:#1B1206;
+  --pp:#7DB5DA; --pp-ink:#9FCAE8; --pp-soft:#15283A; --pp-line:#2F5677; --pp-on:#0B1820;
+  --gst-soft:#222E3A; --gst-ink:#B6C3D0;
+  --sfec:#F2C94C; --sfec-ink:#F6D97A; --sfec-soft:#3A3012; --sfec-line:#7A6418;
+  --warn-soft:#3A1E1E; --warn-ink:#F2A0A0; --warn-line:#7A3B3B;
+  --ccp:#5FC3B2; --ccp-ink:#8ADBCC; --ccp-soft:#12302B; --ccp-line:#246B5F;
+  --gain:#5CCB8A; --gain-ink:#8EE2AF; --gain-soft:#13301F; --gain-line:#2A6B45;
+  --focus:#7DB5DA; --shadow:none;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.page{max-width:1100px;margin:0 auto;padding-block:28px 56px;padding-inline:16px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+
+/* Masthead */
+.masthead{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-bottom:22px}
+.brand{background:#FFFFFF;border:1px solid var(--line);border-radius:12px;padding:8px 14px;flex:0 0 auto}
+.brand img{display:block;height:58px;width:auto}
+.masthead-text{flex:1 1 320px;min-width:0}
+.eyebrow{font-family:var(--font-display);font-weight:600;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pp-ink)}
+h1{font-size:clamp(1.7rem,3.6vw,2.4rem);font-weight:700;line-height:1.15;margin-top:4px}
+.lede{color:var(--muted);margin-top:6px;max-width:66ch}
+
+/* Controls: 2 × 2 */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.controls{display:grid;grid-template-columns:1fr 1fr;overflow:hidden;margin-bottom:34px}
+.control{padding:20px 22px;min-width:0}
+.control:nth-child(even){border-left:1px solid var(--line)}
+.control:nth-child(n+3){border-top:1px solid var(--line)}
+.label{display:block;font-family:var(--font-display);font-weight:600;font-size:1.02rem;margin-bottom:10px}
+.light{font-weight:400;color:var(--muted)}
+.hint{color:var(--muted);font-size:.86rem;margin-top:10px}
+.seg{display:grid;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:5px}
+.seg.two{grid-template-columns:1fr 1fr}
+.seg.stack{grid-template-columns:1fr}
+.seg-btn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:9px 10px;border:1px solid transparent;border-radius:9px;background:transparent;cursor:pointer;font-family:var(--font-display);font-weight:600;font-size:1rem;color:var(--muted);text-align:center}
+.seg.stack .seg-btn{flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:2px 10px;padding:8px 12px;font-size:.92rem;text-align:left;white-space:nowrap}
+.seg-btn small{font-family:var(--font-body);font-weight:400;font-size:.78rem}
+.seg-btn[aria-pressed="true"]{background:var(--surface);color:var(--fg);border-color:var(--line-strong);box-shadow:var(--shadow)}
+.seg-btn[aria-pressed="true"] small{color:var(--you-ink);font-weight:500}
+.seg.sfec .seg-btn[aria-pressed="true"] small{color:var(--sfec-ink)}
+.money{display:flex;align-items:center;gap:10px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface-2);padding:6px 6px 6px 16px}
+.money:focus-within{border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent)}
+.cur{font-family:var(--font-display);font-weight:600;color:var(--muted);font-size:1.1rem}
+.money input{flex:1 1 auto;min-width:0;width:100%;border:0;background:transparent;font:600 1.55rem var(--font-display);font-variant-numeric:tabular-nums;color:var(--fg);padding:6px 8px;outline:none}
+.money.small{padding:3px 3px 3px 12px;margin-top:10px}
+.money.small input{font-size:1.2rem;padding:4px 6px}
+.text{display:block;width:100%;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface-2);padding:10px 14px;font:500 1rem var(--font-body);color:var(--fg);outline:none;margin-top:12px}
+.text:focus{border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.84rem;cursor:pointer;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip:hover{border-color:var(--line-strong);color:var(--fg)}
+.chip.cap{border-color:var(--pp-line);color:var(--pp-ink);background:var(--pp-soft)}
+.cap-pill{margin-top:12px;border:1px solid var(--pp-line);background:var(--pp-soft);border-radius:12px;padding:10px 14px;font-size:.86rem;color:var(--fg)}
+.cap-pill b{font-family:var(--font-display);font-weight:600;color:var(--pp-ink)}
+.cap-pill .status{display:block;margin-top:6px;font-weight:500;color:var(--pp-ink)}
+.cap-pill.hit{border-color:var(--warn-line);background:var(--warn-soft)}
+.cap-pill.hit .status,.cap-pill.hit b{color:var(--warn-ink)}
+
+/* Sections */
+.part{margin-bottom:44px}
+.part h2{display:flex;align-items:center;gap:12px;font-size:clamp(1.3rem,2.5vw,1.65rem);font-weight:600;margin-bottom:12px}
+.part h2 .n{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--pp);color:var(--pp-on);display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700}
+.story{font-size:1.04rem;line-height:1.65;max-width:82ch;margin-bottom:20px;color:var(--fg)}
+.story strong{font-weight:600}
+
+/* Tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:18px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 20px;min-width:0;border-top:5px solid var(--line-strong)}
+.tile .k{font-family:var(--font-display);font-weight:600;font-size:.76rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);line-height:1.4;min-height:2.8em}
+.tile .v{font-family:var(--font-display);font-weight:700;font-size:1.55rem;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:10px;color:var(--fg)}
+.tile .s{font-size:.88rem;color:var(--muted);margin-top:8px;line-height:1.45}
+.tile.pp{border-top-color:var(--pp)} .tile.pp .v{color:var(--pp-ink)}
+.tile.you{border-top-color:var(--you)} .tile.you .v{color:var(--you-ink)}
+.tile.gst{border-top-color:var(--gst-ink)}
+.tile.sfec{border-top-color:var(--sfec)} .tile.sfec .v{color:var(--gain-ink)}
+.tile.net{border-top-color:var(--you);background:var(--you-soft)} .tile.net .v{color:var(--you-ink)}
+
+/* Payment table */
+.table-wrap{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);overflow-x:auto}
+table{width:100%;border-collapse:collapse;table-layout:auto}
+th,td{padding:18px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:.95rem;line-height:1.5}
+thead th{font-family:var(--font-display);font-weight:600;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);vertical-align:bottom;padding-top:22px}
+th.you,td.you{background:var(--you-soft)} th.pp,td.pp{background:var(--pp-soft)} th.sf,td.sf{background:var(--sfec-soft)}
+thead th.you{color:var(--you-ink)} thead th.pp{color:var(--pp-ink)} thead th.sf{color:var(--sfec-ink)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.n{white-space:nowrap;font-size:.95rem}
+th.n{min-width:5.5em}
+td.pay{font-family:var(--font-display);font-weight:600;font-size:1.02rem;color:var(--you-ink)}
+td.sf{color:var(--gain-ink);font-weight:600}
+th.pp,td.pp{text-align:left;white-space:normal;width:22%;min-width:170px}
+th.when,td.when{width:24%;min-width:170px}
+td.pp .amt{font-family:var(--font-display);font-weight:600;font-size:1.02rem;color:var(--pp-ink);display:block;white-space:nowrap}
+td.pp .cond{display:block;font-size:.86rem;color:var(--muted);margin-top:4px;line-height:1.45}
+td.when{color:var(--muted);font-size:.92rem}
+td.pname,tfoot th{font-weight:600;font-size:.98rem;min-width:120px;color:var(--fg)}
+td.pname small,tfoot th small{display:block;font-weight:400;color:var(--muted);font-size:.84rem;margin-top:3px;line-height:1.4}
+tfoot td,tfoot th{background:var(--surface-2)}
+tfoot th{font-family:var(--font-body);text-align:left}
+tfoot td.pay,tfoot td.n{font-weight:600;color:var(--fg)}
+tfoot td.pay{color:var(--you-ink);font-size:1.08rem}
+tfoot td.pp .amt{font-size:1.08rem}
+tfoot tr.sfrow td,tfoot tr.sfrow th{background:var(--sfec-soft);border-bottom:1px solid var(--sfec-line)}
+tfoot tr.sfrow td.pay,tfoot tr.sfrow td.n{color:var(--gain-ink)}
+tfoot tr.netrow td,tfoot tr.netrow th{background:var(--you-soft);border-bottom:0}
+tfoot tr.netrow td.pay{font-size:1.12rem}
+tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
+.footnote{color:var(--muted);font-size:.86rem;margin-top:12px}
+
+/* CCP tile — complementary EWTP support */
+.tile.ccp{margin-top:18px;border-top-color:var(--ccp);display:grid;grid-template-columns:minmax(220px,0.9fr) minmax(0,2fr);gap:10px 28px;align-items:start}
+.tile.ccp .k{min-height:0;color:var(--ccp-ink)}
+.tile.ccp .v{color:var(--ccp-ink);font-size:1.9rem}
+.tile.ccp .s{font-size:.9rem}
+.tile.ccp .body{display:grid;gap:10px;font-size:.95rem;line-height:1.55;color:var(--fg);padding-top:4px}
+.tile.ccp .body p strong{font-weight:600}
+.tile.ccp .modes-wrap{overflow-x:auto;border:1px solid var(--ccp-line);border-radius:10px}
+.tile.ccp .modes-table{width:100%;min-width:560px;border-collapse:collapse;table-layout:auto}
+.tile.ccp .modes-table th,.tile.ccp .modes-table td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:.86rem;line-height:1.45;font-family:var(--font-body);font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;background:var(--surface)}
+.tile.ccp .modes-table thead th{background:var(--ccp-soft);color:var(--ccp-ink);font-family:var(--font-display);font-weight:600;font-size:.76rem;letter-spacing:.05em;text-transform:uppercase}
+.tile.ccp .modes-table tbody th{font-weight:600;color:var(--fg);white-space:normal;min-width:190px}
+.tile.ccp .modes-table tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.8rem;margin-top:3px;line-height:1.4}
+.tile.ccp .modes-table tr:last-child th,.tile.ccp .modes-table tr:last-child td{border-bottom:0}
+.tile.ccp .cue{font-size:.88rem;color:var(--muted);border-left:3px solid var(--ccp);padding-left:12px}
+.tile.ccp .modes-table{min-width:680px}
+.tile.ccp .modes-table td.act{width:1%;white-space:nowrap;vertical-align:top;padding-top:11px}
+.act-btn{border:1px solid var(--ccp-line);background:var(--surface);color:var(--ccp-ink);border-radius:999px;padding:5px 14px;font-family:var(--font-display);font-weight:600;font-size:.84rem;cursor:pointer;white-space:nowrap}
+.act-btn:hover{background:var(--ccp-soft)}
+.act-btn[aria-pressed="true"]{background:var(--ccp);border-color:var(--ccp);color:#FFFFFF}
+.act-btn[aria-pressed="true"]::before{content:"\2713\00a0"}
+.mode-row.on th,.mode-row.on td{background:var(--ccp-soft)}
+.mode-inputs td{background:var(--surface-2)}
+.fields{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end}
+.fields label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;font-family:var(--font-display);font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.fields input[type="number"],.fields select{font:500 .95rem var(--font-body);color:var(--fg);background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:6px 8px;min-width:0}
+.fields input[type="number"]{width:5.5em;font-variant-numeric:tabular-nums}
+.fields select{max-width:100%}
+.money.tiny{padding:1px 2px 1px 10px;border-radius:8px;background:var(--surface);width:9.5em}
+.money.tiny .cur{font-size:.9rem}
+.money.tiny input{font-size:.95rem;padding:5px 6px;font-family:var(--font-body);font-weight:500}
+.fields .calc{font-size:.9rem;color:var(--muted);flex-basis:100%;padding-top:2px}
+.fields .calc b{color:var(--ccp-ink);font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums}
+.tile.ccp .activated{margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--ccp-soft);border:1px solid var(--ccp-line);font-size:.9rem;color:var(--fg)}
+.tile.ccp .activated b{font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ccp-ink);font-size:1.15rem;display:block}
+tfoot tr.ccprow td,tfoot tr.ccprow th{background:var(--ccp-soft);border-bottom:1px solid var(--ccp-line)}
+tfoot tr.ccprow td.pay,tfoot tr.ccprow td.n{color:var(--ccp-ink)}
+td.credit,tfoot td.credit{color:var(--gain-ink)!important;font-weight:600}
+tfoot tr.gainrow td,tfoot tr.gainrow td.you,tfoot tr.gainrow th{background:var(--gain-soft);border-bottom:0;border-top:2px solid var(--gain-line)}
+tfoot tr.gainrow th{color:var(--gain-ink)}
+tfoot tr.gainrow td.pay{color:var(--gain-ink);font-size:1.2rem}
+.tile.gain{border-top-color:var(--gain);background:var(--gain-soft);border-color:var(--gain-line)}
+.tile.gain .k{color:var(--gain-ink)} .tile.gain .v{color:var(--gain-ink);font-size:1.8rem}
+.tile.gain .s{color:var(--fg)}
+.gain-text{color:var(--gain-ink);font-weight:700;background:var(--gain-soft);padding:1px 7px;border-radius:6px;white-space:nowrap}
+.tile.ccp .example{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:.88rem;color:var(--muted)}
+.tile.ccp .example b{color:var(--fg);font-weight:600}
+.tile.ccp .links{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.86rem}
+.tile.ccp .links a{color:var(--ccp-ink);text-decoration:underline;text-underline-offset:3px}
+.tile.ccp .links a:hover{color:var(--fg)}
+@media (max-width:720px){ .tile.ccp{grid-template-columns:1fr} }
+
+/* Good to know */
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.card h3{font-size:1.05rem;font-weight:600}
+.card p,.card li{color:var(--muted);font-size:.93rem}
+.card ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.card.alert{border-color:var(--warn-line)} .card.alert h3{color:var(--warn-ink)}
+.card.sfec{border-color:var(--sfec-line)} .card.sfec h3{color:var(--sfec-ink)}
+.card b{color:var(--fg);font-weight:600}
+.mini{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:4px}
+.mini th,.mini td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:.86rem;line-height:1.4}
+.mini th{font-family:var(--font-display);font-weight:600;color:var(--muted);background:transparent;text-transform:none;letter-spacing:0}
+.mini td{color:var(--muted)}
+
+/* Footer */
+.sources{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.84rem;max-width:92ch}
+.sources p + p{margin-top:6px}
+
+@media (max-width:720px){
+  .controls{grid-template-columns:1fr}
+  .control:nth-child(even){border-left:0}
+  .control + .control{border-top:1px solid var(--line)}
+  .cards{grid-template-columns:1fr}
+  .brand img{height:48px}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tile .k{min-height:0}
+  /* table becomes stacked cards */
+  table,tbody,tfoot,tr,td,th,colgroup,col{display:block;width:100%}
+  thead{display:none}
+  th.pp,td.pp,th.when,td.when,td.pname,tfoot th{width:100%;min-width:0}
+  tr{border-bottom:6px solid var(--bg)}
+  td{display:flex;justify-content:space-between;gap:12px;align-items:baseline;border-bottom:1px solid var(--line);padding:11px 14px}
+  td::before{content:attr(data-label);font-family:var(--font-display);font-weight:600;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);flex:0 0 44%}
+  td.pname,tfoot th{background:var(--surface-2);display:block;padding:12px 14px}
+  td.pname::before{display:none}
+  td.when{display:block} td.when::before{display:block;margin-bottom:2px}
+  td.n{text-align:right;white-space:normal}
+  td.pp{display:block}
+  td.pp::before{display:block;margin-bottom:2px}
+  tfoot tr{border-top:2px solid var(--line-strong)}
+  td.empty{display:none}
+}
+</style>
+
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="brand"><img src="data:image/jpeg;base64,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" alt="CET Global — People · Process · Performance"></div>
+    <div class="masthead-text">
+      <p class="eyebrow">Workforce Development Grant (Job Redesign+)</p>
+      <h1>WDG(JR+) Payment Schedule</h1>
+      <p class="lede">Who pays what, and when. Choose your company type, enter the project cost, pick the payment schedule in your quotation and tell us about your SkillsFuture Enterprise Credit. Your funding is explained below, with and without GST.</p>
+    </div>
+  </header>
+
+  <section class="panel controls" aria-label="Your project">
+    <div class="control">
+      <span class="label" id="segLabel">Your company is</span>
+      <div class="seg two" role="group" aria-labelledby="segLabel">
+        <button type="button" class="seg-btn" id="segSme" aria-pressed="true">SME<small>grant pays 70%</small></button>
+        <button type="button" class="seg-btn" id="segNon" aria-pressed="false">Non-SME<small>grant pays 50%</small></button>
+      </div>
+      <p class="hint">SME: operating revenue of S$100 million or less, <strong>or</strong> 200 employees or fewer. Non-SME: above both.</p>
+      <label class="label" for="client" style="margin:14px 0 0;font-size:.92rem">Company name <span class="light">(optional, used in the explanation)</span></label>
+      <input class="text" id="client" type="text" placeholder="e.g. ABC Precision Engineering Pte Ltd" autocomplete="organization" maxlength="60">
+    </div>
+    <div class="control">
+      <label class="label" for="tpc">Total project cost <span class="light">(before GST)</span></label>
+      <div class="money"><span class="cur">S$</span><input id="tpc" type="text" inputmode="decimal" value="30,000" autocomplete="off" spellcheck="false" aria-describedby="capPill"></div>
+      <div class="chips" role="group" aria-label="Example amounts">
+        <button type="button" class="chip" data-v="15000">15,000</button>
+        <button type="button" class="chip" data-v="30000">30,000</button>
+        <button type="button" class="chip" data-v="50000">50,000</button>
+        <button type="button" class="chip" data-v="75000">75,000</button>
+        <button type="button" class="chip" data-v="100000">100,000</button>
+        <button type="button" class="chip cap" id="chipCap" data-v="214285.71">214,285.71 · grant cap</button>
+      </div>
+      <div class="cap-pill" id="capPill"><b>Grant cap of S$150,000.</b> The grant is capped at S$150,000 per project. Where 70% (SME) or 50% (Non-SME) of the project cost is more than that, you pay the amount above the cap.<span class="status" id="capStatus"></span></div>
+    </div>
+    <div class="control">
+      <span class="label" id="schedLabel">Your payment schedule <span class="light">(as set out in CET Global's quotation)</span></span>
+      <div class="seg stack" role="group" aria-labelledby="schedLabel">
+        <button type="button" class="seg-btn" data-sched="30-70" aria-pressed="true">2 payments · 30% / 70%<small>SWDA standard</small></button>
+        <button type="button" class="seg-btn" data-sched="50-50" aria-pressed="false">2 payments · 50% / 50%<small>case by case</small></button>
+        <button type="button" class="seg-btn" data-sched="30-40-30" aria-pressed="false">3 payments · 30% / 40% / 30%<small>case by case</small></button>
+      </div>
+      <p class="hint">Whichever schedule applies to you, the Programme Partner pays the grant in two parts: 30% at Milestone 1 and 70% at the Final Milestone.</p>
+    </div>
+    <div class="control">
+      <span class="label" id="sfecLabel">SkillsFuture Enterprise Credit <span class="light">(SFEC)</span></span>
+      <div class="seg stack sfec" role="group" aria-labelledby="sfecLabel">
+        <button type="button" class="seg-btn" data-sfec="none" aria-pressed="true">No SFEC<small>none, or balance used up</small></button>
+        <button type="button" class="seg-btn" data-sfec="enh" aria-pressed="false">Enhanced SFEC · from 1 Dec 2026<small>offset up front</small></button>
+        <button type="button" class="seg-btn" data-sfec="cur-full" aria-pressed="false">Current SFEC · project completed before 30 Nov 2026<small>refunded later</small></button>
+        <button type="button" class="seg-btn" data-sfec="cur-m1" aria-pressed="false">Current SFEC · only Milestone 1 before 30 Nov 2026<small>refunded later</small></button>
+      </div>
+      <div id="sfecBalWrap" hidden>
+        <label class="label" for="sfecBal" style="margin:12px 0 0;font-size:.92rem">SFEC balance</label>
+        <div class="money small"><span class="cur">S$</span><input id="sfecBal" type="text" inputmode="decimal" value="10,000" autocomplete="off" spellcheck="false"></div>
+      </div>
+      <p class="hint">SFEC covers up to 90% of your share, up to your balance. It never covers GST.</p>
+    </div>
+  </section>
+
+  <section class="part" aria-labelledby="h1p">
+    <h2 id="h1p"><span class="n">1</span>How your funding works</h2>
+    <p class="story" id="story"></p>
+    <div class="tiles" id="tiles"></div>
+    <div class="table-wrap">
+      <table id="flow">
+        <thead><tr id="head"></tr></thead>
+        <tbody id="rows"></tbody>
+        <tfoot id="foot"></tfoot>
+      </table>
+    </div>
+    <p class="footnote">All amounts in Singapore dollars. Figures are estimates, subject to approval by the Programme Partner and the SFEC administrator. GST is 9% on the full project cost and is not covered by the grant or by SFEC.</p>
+
+    <div class="tile ccp" aria-label="Career Conversion Programmes">
+      <div>
+        <div class="k">Career Conversion Programmes (CCPs) · salary support</div>
+        <div class="v">Up to 90%</div>
+        <div class="s">of each employee's monthly salary, capped at S$7,500 a month, for employees aged 40 and above or long-term unemployed. Up to 70%, capped at S$5,000 a month, for other employees. Paid for the training period of the programme, typically 3 to 6 months.</div>
+        <div class="activated" id="ccpSummary"></div>
+      </div>
+      <div class="body">
+        <p><strong>Beyond this project.</strong> CCPs help you broaden your talent pool or transform your workforce by reskilling mid-career new hires or existing employees into growth job roles with good longer-term prospects. They sit alongside WDG(JR+) and SFEC in SWDA's Enterprise Workforce Transformation Package, and CET Global can arrange one <strong>after your WDG(JR+) project is completed</strong>, or as a <strong>separate standalone engagement</strong>.</p>
+        <div class="modes-wrap">
+          <table class="modes-table" aria-label="The three CCP modes: activate the ones proposed to the client">
+            <thead><tr><th>Activate</th><th>Mode &middot; when to raise it after WDG(JR+)</th><th>Who it is for</th><th>Who receives the support</th><th>Typical use</th></tr></thead>
+            <tbody>
+              <tr class="mode-row" id="row-pnt"><td class="act"><button type="button" class="act-btn" data-ccp="pnt" aria-pressed="false">Activate</button></td><th>Place-and-Train<small>Raise when the client must hire into the redesigned roles</small></th><td>Mid-career jobseekers you hire</td><td>Employer (salary support)</td><td>Filling hard-to-hire growth roles by training career switchers on the job</td></tr>
+              <tr class="mode-inputs" id="inp-pnt" hidden><td colspan="5"><div class="fields">
+                <label>New hires <input type="number" id="pnt-n" min="1" max="99" value="1"></label>
+                <label>Monthly salary <span class="money tiny"><span class="cur">S$</span><input type="text" id="pnt-sal" inputmode="decimal" value="8,500"></span></label>
+                <label>Support tier <select id="pnt-tier"><option value="enh">Enhanced &middot; 90%, cap S$7,500 &middot; aged 40+ or long-term unemployed</option><option value="std">Standard &middot; 70%, cap S$5,000</option></select></label>
+                <label>Months of support <input type="number" id="pnt-m" min="1" max="24" value="3"></label>
+                <span class="calc" id="calc-pnt"></span>
+              </div></td></tr>
+              <tr class="mode-row" id="row-jrr"><td class="act"><button type="button" class="act-btn" data-ccp="jrr" aria-pressed="false">Activate</button></td><th>Job Redesign Reskilling<small>Raise when the redesigned roles are filled by existing staff</small></th><td>Any existing employee moving into a growth role</td><td>Employer (salary support)</td><td>Redeploying staff into redesigned roles instead of retrenching and rehiring</td></tr>
+              <tr class="mode-inputs" id="inp-jrr" hidden><td colspan="5"><div class="fields">
+                <label>Employees reskilled <input type="number" id="jrr-n" min="1" max="99" value="1"></label>
+                <label>Monthly salary <span class="money tiny"><span class="cur">S$</span><input type="text" id="jrr-sal" inputmode="decimal" value="8,500"></span></label>
+                <label>Support tier <select id="jrr-tier"><option value="enh">Enhanced &middot; 90%, cap S$7,500 &middot; aged 40+ or long-term unemployed</option><option value="std">Standard &middot; 70%, cap S$5,000</option></select></label>
+                <label>Months of support <input type="number" id="jrr-m" min="1" max="24" value="3"></label>
+                <span class="calc" id="calc-jrr"></span>
+              </div></td></tr>
+              <tr class="mode-row" id="row-ant"><td class="act"><button type="button" class="act-btn" data-ccp="ant" aria-pressed="false">Activate</button></td><th>Attach-and-Train<small>Raise when the client wants to try a candidate before hiring</small></th><td>Jobseekers on work attachment</td><td>Trainee (training allowance); host employer co-funds at least 10%</td><td>Assessing fit before a permanent hire, in sectors with strong placement prospects</td></tr>
+              <tr class="mode-inputs" id="inp-ant" hidden><td colspan="5"><div class="fields">
+                <label>Trainees <input type="number" id="ant-n" min="1" max="99" value="1"></label>
+                <label>Prevailing monthly salary <span class="money tiny"><span class="cur">S$</span><input type="text" id="ant-sal" inputmode="decimal" value="8,500"></span></label>
+                <label>Allowance funded <select id="ant-rate"><option value="0.7">70% of salary, cap S$5,000</option><option value="0.5">50% of salary, cap S$5,000</option></select></label>
+                <label>Months of attachment <input type="number" id="ant-m" min="1" max="24" value="3"></label>
+                <span class="calc" id="calc-ant"></span>
+              </div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="cue">Each CCP has its own Programme Partner, eligible roles and end date, so check the listing before proposing. The figures are the maximum salary support or allowance at the chosen tier; the actual amount follows the CCP's approval and the employee's salary.</p>
+        <div class="example"><b>Example (SBF client deck):</b> one existing employee reskilled under the CCP for SME Professionals after a job redesign, at the maximum rate of S$7,500 a month for 3 months, brings S$22,500 of salary support. Course fees for structured CCP training attract a separate 70% subsidy.</div>
+        <div class="links">
+          <a href="https://www.swda.gov.sg/docs/programme/38b67413-cd3c-4968-8587-d370c4dc9256/ccp-factsheet-jul-2026.pdf" target="_blank" rel="noopener">SWDA CCP factsheet (Jul 2026)</a>
+          <a href="https://www.ourworkforce.gov.sg/programmes-directory/programme/career-conversion-programmes" target="_blank" rel="noopener">CCPs on OurWorkforce</a>
+          <a href="https://conversion.mycareersfuture.gov.sg/Portal/ProgramListing.aspx?source=PCP" target="_blank" rel="noopener">List of CCPs</a>
+          <a href="https://snef.org.sg/programmes-and-grants/" target="_blank" rel="noopener">SNEF-administered CCPs</a>
+          <a href="https://www.swda.gov.sg/home/campaigns/the-business-case-for-career-conversion-programme" target="_blank" rel="noopener">The business case for CCP</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="part" aria-labelledby="h2p">
+    <h2 id="h2p"><span class="n">2</span>Good to know</h2>
+    <div class="cards">
+      <div class="card alert">
+        <h3>Before you apply</h3>
+        <p>Do not pay CET Global anything, and do not sign any contract or purchase order, until the grant application has been submitted on the Business Grants Portal. Payments or contracts made before submission make the project ineligible. If you intend to use Enhanced SFEC, indicate it on the application form.</p>
+      </div>
+      <div class="card">
+        <h3>How the grant is paid</h3>
+        <p>The grant never passes through your hands. The Programme Partner (SBF or SNEF) pays it directly to CET Global, so you pay only your share, plus GST, and there is no grant claim for you to file. Each grant payment is released only after the Partner has checked and approved the deliverables of that milestone.</p>
+      </div>
+      <div class="card">
+        <h3>How SWDA defines the two milestones</h3>
+        <table class="mini">
+          <tr><th></th><th>Milestone 1 · 30% of project cost</th><th>Final Milestone · 70% of project cost</th></tr>
+          <tr><td>Documentation</td><td>Detailed project plan, submitted after project approval</td><td>Completed project report and supporting documents (testimonial, photographs, surveys)</td></tr>
+          <tr><td>Your share</td><td>SME 30% · Non-SME 50% of Milestone 1</td><td>SME 30% · Non-SME 50% of Final Milestone</td></tr>
+          <tr><td>Grant</td><td>SME 70% · Non-SME 50% of Milestone 1</td><td>SME 70% · Non-SME 50% of Final Milestone</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Payment schedules CET Global may offer</h3>
+        <p>The standard schedule, and the minimum in CET Global's quotation and invoicing, is 2 payments of 30% / 70%, matching SWDA's milestones. Case by case, to suit a project's scope, effort and resourcing, CET Global may agree:</p>
+        <ul>
+          <li>2 payments · 50% as first payment, 50% as final payment</li>
+          <li>3 payments · 30% / 40% / 30%, with an interim stage agreed in the quotation</li>
+        </ul>
+        <p>These are private arrangements between you and CET Global. The Programme Partner still pays the grant only at the two SWDA milestones, 30% then 70%.</p>
+      </div>
+      <div class="card sfec">
+        <h3>SkillsFuture Enterprise Credit (SFEC) in brief</h3>
+        <p><b>Enhanced SFEC, from 1 Dec 2026:</b> eligible companies receive a fresh S$10,000 credit in an online wallet (complete a short workforce questionnaire to unlock it). It offsets up to 90% of your share up front instead of a refund: you pay your share after the offset, and the Programme Partner pays the grant plus your SFEC to CET Global once it approves the completion report. Credits are applied all-or-nothing up to your balance and expire on 30 Nov 2029.</p>
+        <p><b>Current SFEC, until 30 Nov 2026:</b> a refund, one claim per project. 90% of your whole share if the project is completed and approved on the portal at least a week before 30 Nov 2026; otherwise 90% of your first payment only.</p>
+      </div>
+      <div class="card">
+        <h3>GST</h3>
+        <p>The grant supports the project cost only; GST is not supported. 9% GST on the full project cost is payable by you, and CET Global bills it with your first payment. No GST is charged on the grant, and SFEC does not offset GST.</p>
+      </div>
+      <div class="card">
+        <h3>If the scope changes</h3>
+        <p>If the approved project cost goes up or down after Milestone 1, the grant, your share and any SFEC amount are re-worked pro-rata on the revised cost and the difference is settled at the Final Milestone. Excess SFEC goes back to your wallet.</p>
+      </div>
+      <div class="card">
+        <h3>Who does what</h3>
+        <p>CET Global prepares the detailed project plan and the completion report. At each milestone it invoices you for your share and the Programme Partner for the grant portion; the Partner checks the deliverables before releasing the grant. Timing of the milestones follows the project plan in your proposal.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sources">
+    <p>Based on the Programme Partner's WDG(JR+) Funding Agreement (Annex A, Table 2: Payment Schedule) and SWDA's briefing to pre-approved consultants on 2 October 2026 (including the SFEC enhancements and revised payment structure from 1 December 2026). Figures are illustrative and rounded to the cent; your Letter of Offer and CET Global's quotation govern.</p>
+    <p>CET Global Pte Ltd is a SWDA pre-approved consultant for the Workforce Development Grant (Job Redesign+), WDG(JR+).</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var CAP = 150000, GST_RATE = 0.09, SFEC_RATE = 0.9;
+  var SCHED = {
+    '30-70':    { pct:[0.3,0.7],     keys:['m1','fin'] },
+    '50-50':    { pct:[0.5,0.5],     keys:['m1','fin'] },
+    '30-40-30': { pct:[0.3,0.4,0.3], keys:['m1','int','fin'] }
+  };
+  var STAGE = {
+    m1:  { name:'First payment',  sub:'Milestone 1',     when:'When your application is approved on the Business Grants Portal and CET Global has submitted the detailed project plan.' },
+    int: { name:'Second payment', sub:'Interim stage',   when:'At the interim stage agreed in CET Global’s quotation, for example when the mid-project deliverable is complete.' },
+    fin: { name:'Final payment',  sub:'Final Milestone', when:'When the project is complete and the completion report and supporting documents are on the Business Grants Portal.' }
+  };
+  var COND_M1  = 'Released once the Partner has checked and approved the project plan.';
+  var COND_FIN = 'Released once the Partner has checked and approved the final deliverables: the completion report, your testimonial, photographs and completed surveys.';
+  var state = { sme:true, tpc:30000, sched:'30-70', sfec:'none', sfecBal:10000, client:'',
+    ccp: { pnt:{ on:false, n:1, sal:8500, tier:'enh', m:3 }, jrr:{ on:false, n:1, sal:8500, tier:'enh', m:3 }, ant:{ on:false, n:1, sal:8500, rate:0.7, m:3 } } };
+  var CCP_NAME = { pnt:'Place-and-Train', jrr:'Job Redesign Reskilling', ant:'Attach-and-Train' };
+  function ccpCalc(){
+    var out = { total:0, modes:[] };
+    ['pnt','jrr','ant'].forEach(function(k){
+      var c = state.ccp[k];
+      var per, basis;
+      if (k === 'ant'){ per = Math.min(r2(c.rate*c.sal), 5000); basis = pct(c.rate*100) + ' of ' + fmt(c.sal) + ', capped at S$5,000'; }
+      else { var rate = c.tier==='enh' ? 0.9 : 0.7, cap = c.tier==='enh' ? 7500 : 5000; per = Math.min(r2(rate*c.sal), cap); basis = pct(rate*100) + ' of ' + fmt(c.sal) + ', capped at ' + fmt(cap); }
+      var amt = r2(per*c.m*c.n);
+      out.modes.push({ key:k, on:c.on, per:per, amt:amt, basis:basis, n:c.n, m:c.m });
+      if (c.on) out.total = r2(out.total + amt);
+    });
+    return out;
+  }
+
+  function $(id){ return document.getElementById(id); }
+  function r2(n){ return Math.round(n*100)/100; }
+  function fmt(n){
+    n = r2(n);
+    var cents = Math.abs(n - Math.round(n)) >= 0.005;
+    return 'S$' + n.toLocaleString('en-SG', {minimumFractionDigits: cents?2:0, maximumFractionDigits:2});
+  }
+  function neg(n){ return '−' + fmt(n); }
+  function pct(x){ return (Math.round(x*10)/10).toLocaleString('en-SG') + '%'; }
+  function parseMoney(s){
+    var v = parseFloat(String(s).replace(/[^0-9.]/g,''));
+    if (!isFinite(v) || v < 0) return 0;
+    return Math.min(r2(v), 99999999);
+  }
+  function setText(id, t){ var el = $(id); if (el) el.textContent = t; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function split(total, pcts){ var out=[], acc=0; for (var i=0;i<pcts.length;i++){ var a = (i===pcts.length-1) ? r2(total-acc) : r2(total*pcts[i]); acc = r2(acc+a); out.push(a);} return out; }
+
+  function calc(){
+    var rate = state.sme ? 0.7 : 0.5;
+    var tpc = state.tpc;
+    var grantRaw = r2(rate*tpc);
+    var capped = grantRaw > CAP + 0.004;
+    var grant = capped ? CAP : grantRaw;
+    var you = r2(tpc - grant);
+    var gst = r2(GST_RATE*tpc);
+    var s = SCHED[state.sched];
+    var gross = split(you, s.pct);
+    var enh = state.sfec === 'enh', cur = state.sfec === 'cur-full' || state.sfec === 'cur-m1';
+    var offBase = state.sfec === 'cur-m1' ? gross[0] : you;
+    var off = (enh || cur) ? Math.min(state.sfecBal, r2(SFEC_RATE*offBase)) : 0;
+    var offs = enh ? split(off, s.pct) : s.pct.map(function(){ return 0; });
+    var m1Pp = r2(0.3*grant), finPp = r2(grant - m1Pp);
+    var pays = [];
+    for (var i=0;i<s.pct.length;i++){
+      var key = s.keys[i];
+      var net = r2(gross[i] - offs[i]);
+      var g = i===0 ? gst : 0;
+      var pp = 0, cond = '';
+      if (key === 'm1'){ pp = enh ? 0 : m1Pp; cond = enh ? 'With Enhanced SFEC, the Partner pays the grant and your SFEC together at completion.' : COND_M1; }
+      else if (key === 'fin'){ pp = enh ? r2(grant + off) : finPp; cond = COND_FIN + (enh ? ' This includes your SFEC offset of ' + fmt(off) + '.' : ''); }
+      else { pp = 0; cond = 'No grant payment at this stage.'; }
+      pays.push({ key:key, pct:s.pct[i], gross:gross[i], off:offs[i], net:net, gst:g, pay:r2(net+g), pp:pp, cond:cond });
+    }
+    var payTotal = 0; for (var j=0;j<pays.length;j++) payTotal = r2(payTotal + pays[j].pay);
+    return { rate:rate, tpc:tpc, grant:grant, you:you, gst:gst, capped:capped, pays:pays,
+             enh:enh, cur:cur, off:off, offBase:offBase, limited: off < r2(SFEC_RATE*offBase) - 0.004,
+             payTotal:payTotal, ppTotal: enh ? r2(grant+off) : grant,
+             netCost: r2(payTotal - (cur ? off : 0)), netBefore: r2(you - off),
+             grantPct: tpc>0 ? grant/tpc*100 : rate*100, youPct: tpc>0 ? you/tpc*100 : (1-rate)*100 };
+  }
+
+  function render(){
+    var c = calc();
+    var sfecOn = c.enh || c.cur;
+    var ccp = ccpCalc();
+    var finalBefore = r2(c.netBefore - ccp.total), finalWith = r2(c.netCost - ccp.total);
+    function finalFmt(v){ return v < -0.004 ? fmt(-v) + ' net benefit' : fmt(v); }
+    var who = state.client ? esc(state.client) : 'You';
+    var pays = state.client ? 'pays' : 'pay';
+
+    // cap chip + pill
+    var capTpc = state.sme ? 214285.71 : 300000;
+    var chip = $('chipCap');
+    chip.setAttribute('data-v', String(capTpc));
+    chip.textContent = capTpc.toLocaleString('en-SG', {maximumFractionDigits:2}) + ' · grant cap';
+    $('capPill').classList.toggle('hit', c.capped);
+    setText('capStatus', c.capped
+      ? 'Applies at ' + fmt(c.tpc) + ': the grant is S$150,000 (' + pct(c.grantPct) + ') and your share is ' + fmt(c.you) + '.'
+      : 'Not reached at ' + fmt(c.tpc) + ' (grant ' + fmt(c.grant) + '). For ' + (state.sme ? 'an SME' : 'a Non-SME') + ' the cap is reached at ' + fmt(capTpc) + '.');
+    $('sfecBalWrap').hidden = !sfecOn;
+
+    // story
+    var story = 'The project costs <strong>' + fmt(c.tpc) + '</strong> before GST. A WDG(JR+) grant covers <strong>' +
+      (c.capped ? fmt(c.grant) + '</strong> of this (the maximum grant, ' + pct(c.grantPct) + ')' : pct(c.grantPct) + '</strong> of this') +
+      ', paid by the Programme Partner (SBF or SNEF) directly to CET Global. <strong>' + who + '</strong> ' + pays + ' the remaining <strong>' + fmt(c.you) + '</strong>, plus GST on the full project cost.';
+    if (c.enh) story += ' Your SkillsFuture Enterprise Credit covers <strong>' + fmt(c.off) + '</strong> of your share up front, so you pay <strong>' + fmt(c.netCost) + '</strong> in total, including GST.';
+    else if (state.sfec === 'cur-full') story += ' After the project closes, your SkillsFuture Enterprise Credit refunds <strong>' + fmt(c.off) + '</strong> of your share, so your final cost is <strong>' + fmt(c.netCost) + '</strong> including GST.';
+    else if (state.sfec === 'cur-m1') story += ' After Milestone 1 is approved, your SkillsFuture Enterprise Credit refunds <strong>' + fmt(c.off) + '</strong> of your first payment, so your final cost is <strong>' + fmt(c.netCost) + '</strong> including GST.';
+    else story += ' Including GST, your total cost is <strong>' + fmt(c.payTotal) + '</strong>.';
+    if (ccp.total > 0){
+      var names = ccp.modes.filter(function(m){ return m.on; }).map(function(m){ return CCP_NAME[m.key]; }).join(' and ');
+      story += ' Add CCP salary support of <strong>' + fmt(ccp.total) + '</strong> (' + names + ') and ' + (finalWith < -0.004 ? 'you come out ahead by <span class="gain-text">' + fmt(-finalWith) + '</span> overall.' : 'your final cost falls to <strong>' + fmt(finalWith) + '</strong> including GST.');
+    }
+    $('story').innerHTML = story;
+
+    // tiles
+    function finalTile(after){
+      if (finalWith < -0.004) return '<div class="tile gain"><div class="k">Your net benefit \u00b7 in your favour</div><div class="v">' + fmt(-finalWith) + '</div><div class="s">You come out ahead ' + after + ', including GST. ' + fmt(-finalBefore) + ' before GST</div></div>';
+      return '<div class="tile net"><div class="k">Your final cost</div><div class="v">' + fmt(finalWith) + '</div><div class="s">Including GST, ' + after + '. ' + finalFmt(finalBefore) + ' before GST</div></div>';
+    }
+    var tiles = '<div class="tile"><div class="k">Total project cost</div><div class="v">' + fmt(c.tpc) + '</div><div class="s">Before GST</div></div>' +
+      '<div class="tile pp"><div class="k">Grant · paid by Programme Partner</div><div class="v">' + fmt(c.grant) + '</div><div class="s">' + (c.capped ? 'Capped at S$150,000 (' + pct(c.grantPct) + '), paid' : pct(c.grantPct) + ' of the project cost, paid') + ' directly to CET Global</div></div>' +
+      '<div class="tile you"><div class="k">Your share</div><div class="v">' + fmt(c.you) + '</div><div class="s">The remaining ' + pct(c.youPct) + ' of the project cost</div></div>' +
+      '<div class="tile gst"><div class="k">GST · paid by you</div><div class="v">' + fmt(c.gst) + '</div><div class="s">9% on the full ' + fmt(c.tpc) + ', billed with your first payment</div></div>';
+    if (sfecOn){
+      var base = state.sfec === 'cur-m1' ? 'your first payment' : 'your share';
+      tiles += '<div class="tile sfec"><div class="k">' + (c.enh ? 'SFEC offset · up front' : 'SFEC refund · after the project') + '</div><div class="v">' + neg(c.off) + '</div><div class="s">' +
+        (c.limited ? 'Your remaining balance, less than 90% of ' + base : '90% of ' + base) + (c.enh ? ', deducted before you pay' : ', refunded to your company') + '</div></div>' +
+        finalTile(ccp.total > 0 ? 'after SFEC and CCP support' : (c.enh ? 'after the SFEC offset' : 'after the SFEC refund'));
+    } else if (ccp.total > 0){
+      tiles += finalTile('after CCP support');
+    } else {
+      tiles += '<div class="tile net"><div class="k">Your total cost</div><div class="v">' + fmt(c.payTotal) + '</div><div class="s">Including GST. ' + fmt(c.you) + ' before GST</div></div>';
+    }
+    $('tiles').innerHTML = tiles;
+
+    // head
+    var head = '<th>Payment</th><th class="when">When it is due</th><th class="n you">Your share before GST</th>';
+    if (c.enh) head += '<th class="n sf">SFEC offset</th><th class="n you">You pay before GST</th>';
+    head += '<th class="n you">GST 9%</th><th class="n you">You pay</th><th class="pp">Grant paid to CET Global by the Programme Partner</th>';
+    $('head').innerHTML = head;
+
+    // rows
+    var html = '', tGross = 0, tOff = 0, tNet = 0, tGst = 0;
+    for (var i=0;i<c.pays.length;i++){
+      var p = c.pays[i], st = STAGE[p.key];
+      tGross = r2(tGross + p.gross); tOff = r2(tOff + p.off); tNet = r2(tNet + p.net); tGst = r2(tGst + p.gst);
+      html += '<tr>' +
+        '<td class="pname" data-label="Payment">' + esc(st.name) + '<small>' + esc(st.sub) + ' · ' + pct(p.pct*100) + ' of your share</small></td>' +
+        '<td class="when" data-label="When it is due">' + esc(st.when) + '</td>' +
+        '<td class="n you" data-label="Your share before GST">' + fmt(p.gross) + '</td>';
+      if (c.enh){
+        html += '<td class="n sf" data-label="SFEC offset">' + (p.off ? neg(p.off) : '—') + '</td>' +
+                '<td class="n you" data-label="You pay before GST">' + fmt(p.net) + '</td>';
+      }
+      html += '<td class="n you" data-label="GST 9%">' + (p.gst ? fmt(p.gst) : '—') + '</td>' +
+        '<td class="n you pay" data-label="You pay">' + fmt(p.pay) + '</td>' +
+        '<td class="pp" data-label="Grant paid by the Programme Partner"><span class="amt">' + (p.pp ? fmt(p.pp) : '—') + '</span><span class="cond">' + esc(p.cond) + '</span></td>' +
+        '</tr>';
+    }
+    $('rows').innerHTML = html;
+
+    // foot
+    var foot = '<tr><th data-label="">Total paid</th><td class="empty" data-label=""></td>' +
+      '<td class="n you" data-label="Your share before GST">' + fmt(tGross) + '</td>';
+    if (c.enh){ foot += '<td class="n sf" data-label="SFEC offset">' + neg(tOff) + '</td><td class="n you" data-label="You pay before GST">' + fmt(tNet) + '</td>'; }
+    foot += '<td class="n you" data-label="GST 9%">' + fmt(tGst) + '</td>' +
+      '<td class="n you pay" data-label="You pay">' + fmt(c.payTotal) + '</td>' +
+      '<td class="pp" data-label="Grant paid by the Programme Partner"><span class="amt">' + fmt(c.ppTotal) + '</span><span class="cond">' + (c.enh ? 'Grant ' + fmt(c.grant) + ' plus SFEC ' + fmt(c.off) + '. No GST is charged on the grant.' : 'No GST is charged on the grant.') + '</span></td></tr>';
+    var dashCols = c.enh ? 4 : 2;  // empty numeric cells before the 'You pay' column
+    var dashes = ''; for (var d=0; d<dashCols; d++) dashes += '<td class="n empty" data-label=""></td>';
+    var onModes = ccp.modes.filter(function(m){ return m.on; });
+    foot += '<tr class="ccprow"><th data-label="">CCP salary support<small>If activated &middot; paid over the training period</small></th>' +
+      '<td class="when" data-label="Basis">' + (onModes.length
+        ? onModes.map(function(m){ return CCP_NAME[m.key] + ': ' + fmt(m.per) + ' a month \u00d7 ' + m.m + ' month' + (m.m===1?'':'s') + ' \u00d7 ' + m.n + ' (' + m.basis + ')'; }).join('; ') + '.'
+        : 'No CCP mode activated. Select a mode in the CCP tile below to see the support here.') + '</td>' +
+      dashes + '<td class="n pay' + (ccp.total > 0 ? ' credit' : '') + '" data-label="Support to you">' + (ccp.total > 0 ? neg(ccp.total) : 'S$0') + '</td>' +
+      '<td class="pp" data-label="Paid by"><span class="cond">' + (ccp.total > 0 ? 'Paid by SWDA through the CCP Programme Partner as a post-WDG(JR+) standalone engagement, not through this project.' : 'A separate engagement with CET Global after this project, or standalone.') + '</span></td></tr>';
+    if (c.cur){
+      foot += '<tr class="sfrow"><th data-label="">SFEC refund<small>Paid to you after the project</small></th>' +
+        '<td class="when" data-label="When it is due">' + (state.sfec==='cur-full'
+          ? 'SWDA files the claim once the completion report is approved on the portal, which must be at least a week before 30 November 2026. The refund reaches your company’s bank account in a later quarterly cycle.'
+          : 'SWDA files the claim on your first payment once the Milestone 1 documents are on the portal, at least a week before 30 November 2026. The refund reaches your company’s bank account in a later quarterly cycle.') + '</td>' +
+        '<td class="n credit" data-label="Your share before GST">' + neg(c.off) + '</td>' +
+        '<td class="n" data-label="GST 9%">—</td>' +
+        '<td class="n pay credit" data-label="Refunded to you">' + neg(c.off) + '</td><td class="empty" data-label=""></td></tr>';
+    }
+    if (c.cur || ccp.total > 0){
+      var what = 'What you have paid' + (c.cur ? ', less the SFEC refund' : '') + (ccp.total > 0 ? (c.cur ? ' and CCP salary support' : ', less CCP salary support') : '');
+      var gain = finalWith < -0.004;
+      foot += '<tr class="netrow' + (gain ? ' gainrow' : '') + '"><th data-label="">' + (gain ? 'Your net benefit<small>In your favour</small>' : 'Your final cost') + '</th><td class="when" data-label="">' + what + (gain ? '. The support exceeds what you have paid.' : '') + '</td>';
+      if (c.enh) foot += '<td class="n empty" data-label=""></td><td class="n empty" data-label=""></td>';
+      foot += '<td class="n you pay' + (finalBefore < -0.004 ? ' credit' : '') + '" data-label="Before GST">' + finalFmt(finalBefore) + '</td>' +
+        '<td class="n you" data-label="GST 9%">' + fmt(c.gst) + '</td>' +
+        '<td class="n you pay' + (gain ? ' credit' : '') + '" data-label="Including GST">' + finalFmt(finalWith) + '</td><td class="empty" data-label=""></td></tr>';
+    }
+    $('foot').innerHTML = foot;
+
+    // CCP tile: per-mode workings and summary
+    ccp.modes.forEach(function(m){
+      var row = $('row-' + m.key), inp = $('inp-' + m.key), btn = document.querySelector('[data-ccp="' + m.key + '"]');
+      row.classList.toggle('on', m.on); inp.hidden = !m.on;
+      btn.setAttribute('aria-pressed', m.on ? 'true' : 'false'); btn.textContent = m.on ? 'Activated' : 'Activate';
+      setText('calc-' + m.key, '');
+      $('calc-' + m.key).innerHTML = fmt(m.per) + ' a month (' + m.basis + ') \u00d7 ' + m.m + ' month' + (m.m===1?'':'s') + ' \u00d7 ' + m.n + ' = <b>' + fmt(m.amt) + '</b>' + (m.key==='ant' ? ' funded allowance; the host employer co-funds at least 10% of the prevailing salary.' : ' salary support.');
+    });
+    $('ccpSummary').innerHTML = ccp.total > 0
+      ? 'Activated for this client<b>' + fmt(ccp.total) + '</b>' + onModes.map(function(m){ return CCP_NAME[m.key]; }).join(' + ') + ' \u00b7 shown under \u201cTotal paid\u201d above.'
+      : 'No mode activated<b>S$0</b>Activate a mode on the right to add CCP support to the client\u2019s figures above.';
+  }
+
+  // Controls
+  function setType(sme){
+    state.sme = sme;
+    $('segSme').setAttribute('aria-pressed', sme ? 'true' : 'false');
+    $('segNon').setAttribute('aria-pressed', sme ? 'false' : 'true');
+    render();
+  }
+  $('segSme').addEventListener('click', function(){ setType(true); });
+  $('segNon').addEventListener('click', function(){ setType(false); });
+
+  function wireSeg(attr, apply){
+    var btns = document.querySelectorAll('[' + attr + ']');
+    Array.prototype.forEach.call(btns, function(b){
+      b.addEventListener('click', function(){
+        apply(b.getAttribute(attr));
+        Array.prototype.forEach.call(btns, function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        render();
+      });
+    });
+  }
+  wireSeg('data-sched', function(v){ state.sched = v; });
+  wireSeg('data-sfec', function(v){ state.sfec = v; });
+
+  var tpcIn = $('tpc');
+  function formatInput(el, v){ el.value = v ? v.toLocaleString('en-SG', {maximumFractionDigits:2}) : ''; }
+  tpcIn.addEventListener('input', function(){ state.tpc = parseMoney(tpcIn.value); render(); });
+  tpcIn.addEventListener('blur', function(){ formatInput(tpcIn, state.tpc); });
+  tpcIn.addEventListener('focus', function(){ tpcIn.select(); });
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(ch){
+    ch.addEventListener('click', function(){ state.tpc = parseFloat(ch.getAttribute('data-v')); formatInput(tpcIn, state.tpc); render(); });
+  });
+  var balIn = $('sfecBal');
+  balIn.addEventListener('input', function(){ state.sfecBal = parseMoney(balIn.value); render(); });
+  balIn.addEventListener('blur', function(){ formatInput(balIn, state.sfecBal); });
+  balIn.addEventListener('focus', function(){ balIn.select(); });
+  Array.prototype.forEach.call(document.querySelectorAll('.act-btn'), function(b){
+    b.addEventListener('click', function(){ var k = b.getAttribute('data-ccp'); state.ccp[k].on = !state.ccp[k].on; render(); });
+  });
+  ['pnt','jrr','ant'].forEach(function(k){
+    var n = $(k + '-n'), m = $(k + '-m'), sal = $(k + '-sal');
+    n.addEventListener('input', function(){ var v = parseInt(n.value, 10); state.ccp[k].n = (isFinite(v) && v > 0) ? Math.min(v, 99) : 1; render(); });
+    m.addEventListener('input', function(){ var v = parseInt(m.value, 10); state.ccp[k].m = (isFinite(v) && v > 0) ? Math.min(v, 24) : 1; render(); });
+    sal.addEventListener('input', function(){ state.ccp[k].sal = parseMoney(sal.value); render(); });
+    sal.addEventListener('blur', function(){ formatInput(sal, state.ccp[k].sal); });
+    sal.addEventListener('focus', function(){ sal.select(); });
+    if (k === 'ant'){ $('ant-rate').addEventListener('change', function(e){ state.ccp.ant.rate = parseFloat(e.target.value); render(); }); }
+    else { $(k + '-tier').addEventListener('change', function(e){ state.ccp[k].tier = e.target.value; render(); }); }
+  });
+  var clientIn = $('client');
+  clientIn.addEventListener('input', function(){ state.client = clientIn.value.trim(); render(); });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
