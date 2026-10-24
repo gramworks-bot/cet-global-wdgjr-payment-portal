@@ -137,6 +137,14 @@ body.partner-view .toolbar .left .hint-staff{display:none}
 .inline-fields input[type="number"]{font:500 .95rem var(--font-body);color:var(--fg);background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:6px 8px;width:5.5em;font-variant-numeric:tabular-nums}
 .inline-fields .chk{flex-direction:row;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-family:var(--font-body);font-weight:500;font-size:.9rem;color:var(--fg)}
 .note{margin-top:10px;border:1px solid var(--warn-line);background:var(--warn-soft);border-radius:10px;padding:8px 12px;font-size:.86rem;color:var(--warn-ink)}
+.money.tiny{padding:1px 2px 1px 10px;border-radius:8px;background:var(--surface);width:10.5em;margin-top:0}
+.money.tiny .cur{font-size:.9rem}
+.money.tiny input{font-size:.95rem;padding:5px 6px;font-family:var(--font-body);font-weight:500}
+.inline-fields .calc{font-size:.9rem;color:var(--muted);flex-basis:100%;padding-top:2px}
+.inline-fields .calc b{color:var(--gain-ink);font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums}
+.seg-btn[disabled] small{color:var(--faint)}
+.money.off{opacity:.55}
+.chip[disabled]{opacity:.45;cursor:not-allowed}
 
 /* Sections */
 .part{margin-bottom:44px}
@@ -286,7 +294,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
       <div class="inline-fields" id="customWrap" hidden>
         <label>Custom share %<input type="number" id="customShare" min="0" max="100" step="0.5" value="70"></label>
       </div>
-      <p class="hint">Counted in order of the Programme Partner's approval date. A project withdrawn before Milestone 1 does not count.</p>
+      <p class="hint" id="shareHint">Counted in order of the Programme Partner's approval date. A project withdrawn before Milestone 1 does not count.</p>
     </div>
 
     <div class="control">
@@ -299,6 +307,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
         <button type="button" class="chip" data-v="75000">75,000</button>
         <button type="button" class="chip" data-v="100000">100,000</button>
       </div>
+      <p class="hint" id="sumHint" hidden>Set by the fixed-fee method: the partner's effort plus CET Global's effort.</p>
       <span class="label" style="margin-top:16px" id="smeLabel">The client is</span>
       <div class="seg two" role="group" aria-labelledby="smeLabel">
         <button type="button" class="seg-btn" id="segSme" aria-pressed="true">SME<small>grant pays 70%</small></button>
@@ -325,8 +334,14 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
         <button type="button" class="seg-btn" data-method="tranche" aria-pressed="false">30% / 30% / 40% of the share<small>nothing on the client's 1st payment</small></button>
         <button type="button" class="seg-btn" data-method="slices" aria-pressed="false">Set slices of the share<small>10/20/30/40, or 10/20/20/20/30 for 3 client payments</small></button>
         <button type="button" class="seg-btn" data-method="retain" aria-pressed="false">After CET Global's share is covered<small>CET Global keeps its share first, the partner gets the balance of every later receipt</small></button>
+        <button type="button" class="seg-btn" data-method="fixed" aria-pressed="false">Fixed fee for the partner's effort<small>Tech Partner engaged at its quoted amount; CET Global adds its own effort; every receipt is split in that proportion</small></button>
         <button type="button" class="seg-btn" data-method="completion" aria-pressed="false">On project completion<small>Associate Consultant contract: paid with the final grant</small></button>
         <button type="button" class="seg-btn" data-method="first" aria-pressed="false">On the client's 1st payment<small>referral fee</small></button>
+      </div>
+      <div class="inline-fields" id="fixedWrap" hidden>
+        <label>Partner's effort (fixed)<span class="money tiny"><span class="cur">S$</span><input type="text" id="peff" inputmode="decimal" value="75,000" autocomplete="off" spellcheck="false"></span></label>
+        <label>CET Global's effort<span class="money tiny"><span class="cur">S$</span><input type="text" id="ceff" inputmode="decimal" value="18,000" autocomplete="off" spellcheck="false"></span></label>
+        <span class="calc" id="fixedCalc"></span>
       </div>
       <div class="inline-fields">
         <label>Paid within<input type="number" id="days" min="1" max="90" value="30"> </label>
@@ -356,7 +371,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     <h2 id="h2p"><span class="n">2</span>Compare payout methods <span class="light" style="font-size:.9rem;font-weight:400">(CET Global staff only)</span></h2>
     <p class="story">CET Global's cash position after each payment, for the same project and the same share. A negative number means CET Global has paid the partner more than it has collected so far.</p>
     <div class="table-wrap cmp"><table id="cmpTable"><thead id="cmpHead"></thead><tbody id="cmpRows"></tbody></table></div>
-    <p class="footnote">'Just before the final grant' is CET Global's position while it waits 6–8 weeks for the last grant payment, the payment most at risk of delay or claw-back. The green row is the method recommended for new MOUs.</p>
+    <p class="footnote" id="cmpFoot">'Just before the final grant' is CET Global's position while it waits 6–8 weeks for the last grant payment, the payment most at risk of delay or claw-back. The green row is the method recommended for new MOUs.</p>
   </section>
 
   <section class="part" aria-labelledby="h3p">
@@ -381,6 +396,10 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
       <div class="card">
         <h3>If the grant is reduced or clawed back</h3>
         <p>Where this is caused by one party, that party bears it. Otherwise each party bears it in proportion to its share, and any amount already paid out on money that is later clawed back is refunded to CET Global within 30 days.</p>
+      </div>
+      <div class="card">
+        <h3>Tech Partner at a fixed fee</h3>
+        <p>Where CET Global engages a Tech Partner for its quoted effort (for example an AI partner building agents and apps), the partner's amount is <b>fixed</b> and CET Global's own effort is the balance of the project sum. Every amount CET Global receives is split in that same proportion, so the partner is paid regularly as the money comes in and reaches its full fixed amount with the final grant.</p>
       </div>
       <div class="card">
         <h3>If the scope changes</h3>
@@ -441,6 +460,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     tranche:    { name:'30% / 30% / 40% of the share', sub:'nothing on the client’s 1st payment; 30% at Milestone 1; 30% on the client’s final payment; 40% at the Final Milestone' },
     slices:     { name:'Set slices of the share', sub:'10 / 20 / 30 / 40 for 2 client payments; 10 / 20 / 20 / 20 / 30 for 3' },
     retain:     { name:'After CET Global’s share is covered', sub:'CET Global keeps its share out of the first money in; the partner then receives every later receipt in full' },
+    fixed:      { name:'Fixed fee for the partner’s effort', sub:'the partner’s quoted effort is fixed, CET Global’s effort is the balance; every receipt is split in that proportion' },
     completion: { name:'On project completion', sub:'paid in full with the Final Milestone grant' },
     first:      { name:'On the client’s 1st payment', sub:'paid in full when the client’s 1st payment comes in' }
   };
@@ -449,7 +469,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     tranche: { '30-70':[0,.3,.6,1], '50-50':[0,.3,.6,1], '30-40-30':null, 'upfront':[0,.6,1] },
     slices:  { '30-70':[.1,.3,.6,1], '50-50':[.1,.3,.6,1], '30-40-30':[.1,.3,.5,.7,1], 'upfront':null }
   };
-  var state = { name:'', share:75, custom:70, sum:30000, sme:true, sched:'30-70', method:'prorata', days:30, pgst:false, pview:false };
+  var state = { name:'', share:75, custom:70, sum:30000, sme:true, sched:'30-70', method:'prorata', days:30, pgst:false, pview:false, peff:75000, ceff:18000 };
 
   function $(id){ return document.getElementById(id); }
   function r2(n){ return Math.round(n*100)/100; }
@@ -458,7 +478,8 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
   function pct(x){ return (Math.round(x*10)/10).toLocaleString('en-SG') + '%'; }
   function parseMoney(s){ var v = parseFloat(String(s).replace(/[^0-9.]/g,'')); if (!isFinite(v) || v < 0) return 0; return Math.min(r2(v), 99999999); }
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-  function shareFrac(){ return (state.share === 'custom' ? Math.min(Math.max(state.custom,0),100) : state.share) / 100; }
+  function isFixed(){ return state.method === 'fixed'; }
+  function shareFrac(){ if (isFixed()){ var t = state.peff + state.ceff; return t > 0 ? state.peff / t : 0; } return (state.share === 'custom' ? Math.min(Math.max(state.custom,0),100) : state.share) / 100; }
 
   function receipts(){
     var rate = state.sme ? 0.7 : 0.5, sum = state.sum;
@@ -476,7 +497,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
   // entitlement (cumulative amount due to the partner) after each step, for a given method; null if not covered
   function entitled(method, rec, share){
     var ps = r2(rec.sum*share), cs = r2(rec.sum - ps), n = rec.steps.length, out = [];
-    if (method === 'prorata'){ rec.steps.forEach(function(s,i){ out.push(i===n-1 ? ps : r2(share*s.cum)); }); }
+    if (method === 'prorata' || method === 'fixed'){ rec.steps.forEach(function(s,i){ out.push(i===n-1 ? ps : r2(share*s.cum)); }); }
     else if (method === 'retain'){ rec.steps.forEach(function(s){ out.push(Math.min(Math.max(r2(s.cum - cs),0), ps)); }); }
     else if (method === 'completion'){ rec.steps.forEach(function(s,i){ out.push(i===n-1 ? ps : 0); }); }
     else if (method === 'first'){ rec.steps.forEach(function(){ out.push(ps); }); }
@@ -486,30 +507,32 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
   function payouts(ent){ var out = [], prev = 0; ent.forEach(function(e){ out.push(r2(e - prev)); prev = e; }); return out; }
 
   function render(){
-    var rec = receipts(), share = shareFrac(), ps = r2(rec.sum*share), cs = r2(rec.sum - ps);
+    if (isFixed()){ state.sum = r2(state.peff + state.ceff); $('sum').value = state.sum.toLocaleString('en-SG'); }
+    var rec = receipts(), share = shareFrac(), ps = isFixed() ? r2(state.peff) : r2(rec.sum*share), cs = r2(rec.sum - ps);
     var nm = state.name.trim() || 'The partner';
     var ent = entitled(state.method, rec, share);
     var covered = !!ent;
     var pays = covered ? payouts(ent) : rec.steps.map(function(){ return 0; });
     var nPay = pays.filter(function(p){ return p > 0.004; }).length;
-    var shareLabel = state.share === 'custom' ? pct(share*100) : (state.share + '%');
+    var shareLabel = (isFixed() || state.share === 'custom') ? pct(share*100) : (state.share + '%');
 
     // story
     var who = state.sme ? 'an SME client' : 'a non-SME client';
     var story = 'On a <strong>' + fmt(rec.sum) + '</strong> project for ' + who + ', CET Global receives the project sum in <strong>' + rec.steps.length + ' payments</strong>: <strong>' + fmt(rec.client) + '</strong> from the client and <strong>' + fmt(rec.grant) + '</strong> from the grant. ';
-    if (covered) story += '<strong>' + esc(nm) + '</strong> receives <strong>' + fmt(ps) + '</strong> (' + shareLabel + ' of the project sum) in <strong>' + nPay + (nPay===1?' payment':' payments') + '</strong>, each within ' + state.days + ' days of CET Global receiving the money that triggers it, and CET Global keeps <strong>' + fmt(cs) + '</strong>. ';
+    if (isFixed()) story += '<strong>' + esc(nm) + '</strong>’s effort is a fixed <strong>' + fmt(ps) + '</strong> (' + shareLabel + ' of the project sum) and CET Global’s own effort is <strong>' + fmt(cs) + '</strong>. Each amount received is split in that proportion, so ' + esc(nm) + ' is paid in <strong>' + nPay + (nPay===1?' payment':' payments') + '</strong>, each within ' + state.days + ' days of CET Global receiving the money that triggers it, and reaches its full ' + fmt(ps) + ' with the final grant, while CET Global retains its ' + fmt(cs) + ' across the same payments. ';
+    else if (covered) story += '<strong>' + esc(nm) + '</strong> receives <strong>' + fmt(ps) + '</strong> (' + shareLabel + ' of the project sum) in <strong>' + nPay + (nPay===1?' payment':' payments') + '</strong>, each within ' + state.days + ' days of CET Global receiving the money that triggers it, and CET Global keeps <strong>' + fmt(cs) + '</strong>. ';
     else story += '<strong>' + esc(nm) + '</strong> is due <strong>' + fmt(ps) + '</strong> (' + shareLabel + ' of the project sum). ';
     story += 'GST of ' + fmt(rec.gst) + ' is billed to the client with its first invoice and is not shared.';
     $('story').innerHTML = story;
 
     // tiles
     $('tiles').innerHTML =
-      '<div class="tile"><div class="k">Project sum</div><div class="v">' + fmt(rec.sum) + '</div><div class="s">Before GST. The basis for every share.</div></div>' +
+      '<div class="tile"><div class="k">Project sum</div><div class="v">' + fmt(rec.sum) + '</div><div class="s">' + (isFixed() ? 'Before GST: ' + esc(nm) + '’s effort ' + fmt(ps) + ' + CET Global’s effort ' + fmt(cs) + '.' : 'Before GST. The basis for every share.') + '</div></div>' +
       '<div class="tile pp"><div class="k">Grant pays (' + pct((state.sme?70:50)) + ')</div><div class="v">' + fmt(rec.grant) + '</div><div class="s">Paid to CET Global by the Programme Partner, 30% then 70%.</div></div>' +
       '<div class="tile you"><div class="k">Client pays</div><div class="v">' + fmt(rec.client) + '</div><div class="s">Its share of the project sum, paid to CET Global ' + (state.sched==='upfront' ? 'upfront' : 'in ' + SCHED[state.sched].label.toLowerCase()) + '.</div></div>' +
       '<div class="tile gst"><div class="k">GST, 1st invoice</div><div class="v">' + fmt(rec.gst) + '</div><div class="s">9% on the project sum, billed to the client. Not shared.</div></div>' +
-      '<div class="tile partner"><div class="k">' + esc(nm) + ' receives (' + shareLabel + ')</div><div class="v">' + fmt(ps) + '</div><div class="s">' + (covered ? 'In ' + nPay + (nPay===1?' payment':' payments') + ' · ' + METHODS[state.method].name.toLowerCase() : 'Payout timing not covered by this method') + (state.pgst ? ' · plus GST on its invoices' : '') + '</div></div>' +
-      '<div class="tile cetg staff-only"><div class="k">CET Global keeps (' + pct(100 - share*100) + ')</div><div class="v">' + fmt(cs) + '</div><div class="s">Project management, grant application, compliance and reporting.</div></div>';
+      '<div class="tile partner"><div class="k">' + esc(nm) + (isFixed() ? '’s effort – fixed (' : ' receives (') + shareLabel + ')</div><div class="v">' + fmt(ps) + '</div><div class="s">' + (covered ? 'In ' + nPay + (nPay===1?' payment':' payments') + ' · ' + METHODS[state.method].name.toLowerCase() : 'Payout timing not covered by this method') + (state.pgst ? ' · plus GST on its invoices' : '') + '</div></div>' +
+      '<div class="tile cetg staff-only"><div class="k">' + (isFixed() ? 'CET Global’s effort (' : 'CET Global keeps (') + pct(100 - share*100) + ')</div><div class="v">' + fmt(cs) + '</div><div class="s">' + (isFixed() ? 'Retained out of every receipt, in the same proportion.' : 'Project management, grant application, compliance and reporting.') + '</div></div>';
 
     // table
     var pv = state.pview;
@@ -537,7 +560,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     $('rows').innerHTML = rows;
     $('foot').innerHTML = '<tr><th data-label="">Total</th><th></th><td class="n" data-label="CET Global receives">' + fmt(rec.sum) + '<br><small style="font-weight:400;color:var(--muted)">+ ' + fmt(rec.gst) + ' GST from the client</small></td><td class="n pt" data-label="' + esc(nm) + ' receives">' + (covered ? fmt(ps) : '—') + '</td>' + (state.pgst ? '<td class="n pt" data-label="GST on partner invoice">' + (covered ? fmt(r2(ps*GST_RATE)) : '—') + '</td>' : '') + '<td></td><td class="n pt" data-label="Running total">' + (covered ? fmt(ps) : '—') + '</td>' + (pv ? '' : '<td class="n cg staff-only" data-label="CET Global keeps">' + fmt(cs) + '<br><small style="font-weight:400;color:var(--muted)">CET Global keeps</small></td>') + '</tr>';
 
-    $('foot1').textContent = (covered ? nm + '’s share is ' + shareLabel + ' of the project sum before GST, paid out ' + METHODS[state.method].sub + '. ' : '') + 'Each payout is made within ' + state.days + ' days of CET Global receiving cleared funds, against ' + nm + '’s invoice' + (state.pgst ? ' (plus 9% GST, as ' + nm + ' is GST-registered)' : '') + '. No payout is due on money CET Global has not received. The final payout follows the Programme Partner’s acceptance of the completion report and all mandatory documents.';
+    $('foot1').textContent = (isFixed() ? nm + '’s amount is fixed at its quoted effort of ' + fmt(ps) + '; CET Global’s effort of ' + fmt(cs) + ' is the balance of the ' + fmt(rec.sum) + ' project sum before GST. Every amount received is split ' + shareLabel + ' / ' + pct(100 - share*100) + ', so ' + nm + ' is paid regularly as the money comes in and CET Global retains its effort fee in the same way. ' : (covered ? nm + '’s share is ' + shareLabel + ' of the project sum before GST, paid out ' + METHODS[state.method].sub + '. ' : '')) + 'Each payout is made within ' + state.days + ' days of CET Global receiving cleared funds, against ' + nm + '’s invoice' + (state.pgst ? ' (plus 9% GST, as ' + nm + ' is GST-registered)' : '') + '. No payout is due on money CET Global has not received. The final payout follows the Programme Partner’s acceptance of the completion report and all mandatory documents.';
 
     var warn = $('warn');
     if (!covered){ warn.hidden = false; warn.className = 'callout'; warn.textContent = 'The “' + METHODS[state.method].name + '” method is not defined in the MOU for this client payment schedule. Choose another method, or agree the payout timing in the project addendum.'; }
@@ -558,6 +581,8 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
 
   function renderCompare(rec, share, ps, cs){
     var n = rec.steps.length, order = ['prorata','tranche','slices','retain','completion'];
+    if (isFixed()) order[0] = 'fixed';
+    $('cmpFoot').textContent = '‘Just before the final grant’ is CET Global\'s position while it waits 6–8 weeks for the last grant payment, the payment most at risk of delay or claw-back. ' + (isFixed() ? 'The green row is the fixed-fee method selected above: it works exactly like a share of every amount received, with the share set by the two effort amounts.' : 'The green row is the method recommended for new MOUs.');
     if (state.share === 10 || state.method === 'first') order.push('first');
     var h = '<tr><th>Method</th>';
     for (var i=0;i<n;i++) h += '<th class="n">After payment ' + (i+1) + '</th>';
@@ -565,8 +590,9 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     $('cmpHead').innerHTML = h;
     var rows = '';
     order.forEach(function(m){
-      var ent = entitled(m, rec, share), cls = m==='prorata' ? ' class="best"' : '';
-      rows += '<tr' + cls + '><td class="method' + (m==='prorata'?' best':'') + '">' + METHODS[m].name + '<small>' + METHODS[m].sub + '</small></td>';
+      var isBest = (m==='prorata' || m==='fixed');
+      var ent = entitled(m, rec, share), cls = isBest ? ' class="best"' : '';
+      rows += '<tr' + cls + '><td class="method' + (isBest?' best':'') + '">' + METHODS[m].name + '<small>' + METHODS[m].sub + '</small></td>';
       if (!ent){ rows += '<td class="na" colspan="' + (n+4) + '">Not defined for this client payment schedule</td></tr>'; return; }
       var pays = payouts(ent), low = Infinity, times = 0, npay = 0, pre = 0;
       for (var i=0;i<n;i++){
@@ -574,9 +600,9 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
         if (pays[i] > rec.steps[i].amt + 0.004) times++;
         if (pays[i] > 0.004) npay++;
         if (i === n-2) pre = pos;
-        rows += '<td class="n' + (m==='prorata'?' best':'') + (pos < -0.004 ? ' neg' : '') + '">' + sfmt(pos) + '</td>';
+        rows += '<td class="n' + (isBest?' best':'') + (pos < -0.004 ? ' neg' : '') + '">' + sfmt(pos) + '</td>';
       }
-      rows += '<td class="n' + (m==='prorata'?' best':'') + (low < -0.004 ? ' neg' : '') + '">' + sfmt(low) + '</td><td class="n' + (m==='prorata'?' best':'') + '">' + times + '</td><td class="n' + (m==='prorata'?' best':'') + (pre < -0.004 ? ' neg' : '') + '">' + sfmt(pre) + '</td><td class="n' + (m==='prorata'?' best':'') + '">' + npay + '</td></tr>';
+      rows += '<td class="n' + (isBest?' best':'') + (low < -0.004 ? ' neg' : '') + '">' + sfmt(low) + '</td><td class="n' + (isBest?' best':'') + '">' + times + '</td><td class="n' + (isBest?' best':'') + (pre < -0.004 ? ' neg' : '') + '">' + sfmt(pre) + '</td><td class="n' + (isBest?' best':'') + '">' + npay + '</td></tr>';
     });
     $('cmpRows').innerHTML = rows;
   }
@@ -593,6 +619,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     p.set('share', state.share === 'custom' ? 'c' + state.custom : state.share);
     p.set('sum', state.sum); p.set('sme', state.sme ? '1' : '0'); p.set('sched', state.sched); p.set('method', state.method); p.set('days', state.days);
     if (state.pgst) p.set('pgst', '1'); if (state.pview) p.set('pview', '1');
+    if (isFixed()){ p.set('peff', state.peff); p.set('ceff', state.ceff); }
     history.replaceState(null, '', '#' + p.toString());
   }
   function readHash(){
@@ -605,6 +632,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     if (METHODS[p.get('method')]) state.method = p.get('method');
     if (p.get('days')) state.days = Math.min(Math.max(parseInt(p.get('days'),10)||30,1),90);
     state.pgst = p.get('pgst') === '1'; state.pview = p.get('pview') === '1';
+    if (p.get('peff')) state.peff = parseMoney(p.get('peff')); if (p.get('ceff')) state.ceff = parseMoney(p.get('ceff'));
   }
   function syncControls(){
     $('pname').value = state.name;
@@ -616,8 +644,18 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     document.querySelectorAll('[data-method]').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.method === state.method); });
     $('days').value = state.days; $('pgst').checked = state.pgst; $('pview').checked = state.pview;
     document.body.classList.toggle('partner-view', state.pview);
+    var fx = isFixed();
+    $('fixedWrap').hidden = !fx; $('sumHint').hidden = !fx;
+    $('peff').value = state.peff.toLocaleString('en-SG'); $('ceff').value = state.ceff.toLocaleString('en-SG');
+    $('sum').disabled = fx; $('sum').parentNode.classList.toggle('off', fx);
+    document.querySelectorAll('.chip').forEach(function(c){ c.disabled = fx; });
+    document.querySelectorAll('[data-share]').forEach(function(b){ b.disabled = fx; });
+    $('customWrap').hidden = fx || state.share !== 'custom';
+    $('shareHint').textContent = fx ? 'Not used for the fixed-fee method: the share is set by the two effort amounts (' + pct(shareFrac()*100) + ' to the partner).' : 'Counted in order of the Programme Partner\'s approval date. A project withdrawn before Milestone 1 does not count.';
+    if (fx){ var t = state.peff + state.ceff; $('fixedCalc').innerHTML = 'Project sum <b>' + fmt(t) + '</b> · partner <b>' + pct(shareFrac()*100) + '</b> · CET Global <b>' + pct(100 - shareFrac()*100) + '</b> of every receipt'; }
   }
 
+  function syncFixed(){ var t = state.peff + state.ceff; $('fixedCalc').innerHTML = 'Project sum <b>' + fmt(t) + '</b> · partner <b>' + pct(shareFrac()*100) + '</b> · CET Global <b>' + pct(100 - shareFrac()*100) + '</b> of every receipt'; $('shareHint').textContent = 'Not used for the fixed-fee method: the share is set by the two effort amounts (' + pct(shareFrac()*100) + ' to the partner).'; }
   /* ---------- Wiring ---------- */
   var inited = false;
   function init(){
@@ -635,6 +673,10 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     document.querySelectorAll('[data-method]').forEach(function(b){ b.addEventListener('click', function(){ state.method = this.dataset.method; syncControls(); render(); }); });
     $('days').addEventListener('input', function(){ state.days = Math.min(Math.max(parseInt(this.value,10)||30,1),90); render(); });
     $('pgst').addEventListener('change', function(){ state.pgst = this.checked; render(); });
+    $('peff').addEventListener('input', function(){ state.peff = parseMoney(this.value); syncFixed(); render(); });
+    $('ceff').addEventListener('input', function(){ state.ceff = parseMoney(this.value); syncFixed(); render(); });
+    $('peff').addEventListener('blur', function(){ this.value = state.peff.toLocaleString('en-SG'); });
+    $('ceff').addEventListener('blur', function(){ this.value = state.ceff.toLocaleString('en-SG'); });
     $('pview').addEventListener('change', function(){ state.pview = this.checked; document.body.classList.toggle('partner-view', state.pview); render(); });
     $('printBtn').addEventListener('click', function(){ window.print(); });
     $('copyLink').addEventListener('click', function(){ var b = this; (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(function(){ b.textContent = 'Link copied'; setTimeout(function(){ b.textContent = 'Copy link'; }, 1800); }, function(){ prompt('Copy this link:', location.href); }); });
