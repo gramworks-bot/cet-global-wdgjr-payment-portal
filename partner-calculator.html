@@ -143,6 +143,9 @@ body.partner-view .toolbar .left .hint-staff{display:none}
 .inline-fields .calc{font-size:.9rem;color:var(--muted);flex-basis:100%;padding-top:2px}
 .inline-fields .calc b{color:var(--gain-ink);font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums}
 .seg-btn[disabled] small{color:var(--faint)}
+.seg.sfec .seg-btn[aria-pressed="true"] small{color:var(--sfec-ink)}
+.note.info{border-color:var(--sfec-line);background:var(--sfec-soft);color:var(--sfec-ink)}
+.inline-fields .calc.sf b{color:var(--sfec-ink)}
 .money.off{opacity:.55}
 .chip[disabled]{opacity:.45;cursor:not-allowed}
 
@@ -209,6 +212,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
 .card p,.card li{color:var(--muted);font-size:.93rem}
 .card ul{margin:0;padding-left:18px;display:grid;gap:4px}
 .card.alert{border-color:var(--warn-line)} .card.alert h3{color:var(--warn-ink)}
+.card.sfec{border-color:var(--sfec-line)} .card.sfec h3{color:var(--sfec-ink)}
 .card b{color:var(--fg);font-weight:600}
 
 /* Footer */
@@ -324,7 +328,17 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
         <button type="button" class="seg-btn" data-sched="30-40-30" aria-pressed="false">3 payments · 30% / 40% / 30%<small>case by case</small></button>
         <button type="button" class="seg-btn" data-sched="upfront" aria-pressed="false">All upfront<small>client pays its whole share at the start, for an SFEC claim</small></button>
       </div>
-      <p class="hint">Whichever schedule the client is on, the Programme Partner pays the grant in two parts: 30% at Milestone 1 and 70% at the Final Milestone.</p>
+      <p class="hint" id="schedHint">Whichever schedule the client is on, the Programme Partner pays the grant in two parts: 30% at Milestone 1 and 70% at the Final Milestone.</p>
+      <span class="label" style="margin-top:16px" id="sfecLabel">The client's SkillsFuture Enterprise Credit <span class="light">(SFEC)</span></span>
+      <div class="seg two sfec" role="group" aria-labelledby="sfecLabel">
+        <button type="button" class="seg-btn" data-sfec="none" aria-pressed="true">No SFEC<small>or current SFEC, refunded to the client later</small></button>
+        <button type="button" class="seg-btn" data-sfec="enh" aria-pressed="false">Enhanced SFEC<small>from 1 Dec 2026 · offset up front</small></button>
+      </div>
+      <div class="inline-fields" id="sfecWrap" hidden>
+        <label>Client's SFEC balance<span class="money tiny"><span class="cur">S$</span><input type="text" id="sfecBal" inputmode="decimal" value="10,000" autocomplete="off" spellcheck="false"></span></label>
+        <span class="calc sf" id="sfecCalc"></span>
+      </div>
+      <p class="hint" id="sfecHint">Current SFEC (to 30 Nov 2026) is refunded to the client after the project and does not change what CET Global receives. Enhanced SFEC offsets up to 90% of the client's share up front, and the Programme Partner pays the grant and the SFEC to CET Global in one amount at completion.</p>
     </div>
 
     <div class="control">
@@ -397,6 +411,10 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
         <h3>If the grant is reduced or clawed back</h3>
         <p>Where this is caused by one party, that party bears it. Otherwise each party bears it in proportion to its share, and any amount already paid out on money that is later clawed back is refunded to CET Global within 30 days.</p>
       </div>
+      <div class="card sfec">
+        <h3>Enhanced SFEC, from 1 Dec 2026</h3>
+        <p>The client's SkillsFuture Enterprise Credit (up to 90% of its share, up to its balance, usually S$10,000) is <b>offset from its payments up front</b>. The Programme Partner then makes <b>no Milestone 1 payment</b>: it pays the whole grant <b>plus the client's SFEC</b> to CET Global in one amount after it approves the completion report. CET Global still receives the full project sum, so the partner's share does not change, but less of it arrives early and more with the final payment. Where an MOU ties a slice of the share to Milestone 1, CET Global pays that slice with the client's next payment; confirm the timing in the project addendum.</p>
+      </div>
       <div class="card">
         <h3>Tech Partner at a fixed fee</h3>
         <p>Where CET Global engages a Tech Partner for its quoted effort (for example an AI partner building agents and apps), the partner's amount is <b>fixed</b> and CET Global's own effort is the balance of the project sum. Every amount CET Global receives is split in that same proportion, so the partner is paid regularly as the money comes in and reaches its full fixed amount with the final grant.</p>
@@ -440,7 +458,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
   });
 
   /* ---------- Calculator ---------- */
-  var CAP = 150000, GST_RATE = 0.09;
+  var CAP = 150000, GST_RATE = 0.09, SFEC_RATE = 0.9;
   var SCHED = {
     '30-70':    { label:'2 payments · 30% / 70%', steps:[ {who:'client',pct:0.3,key:'c1'}, {who:'pp',pct:0.3,key:'m1'}, {who:'client',pct:0.7,key:'cf'}, {who:'pp',pct:0.7,key:'fin'} ] },
     '50-50':    { label:'2 payments · 50% / 50%', steps:[ {who:'client',pct:0.5,key:'c1'}, {who:'pp',pct:0.3,key:'m1'}, {who:'client',pct:0.5,key:'cf'}, {who:'pp',pct:0.7,key:'fin'} ] },
@@ -454,6 +472,11 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     c2:  { what:'The client pays its <b>2nd payment</b>', sub:'', when:'At the interim stage set out in the quotation' },
     cf:  { what:'The client pays its <b>final payment</b>', sub:'', when:'On project completion' },
     fin: { what:'The Programme Partner pays the <b>Final Milestone</b>', sub:'70% of the grant', when:'After the Partner has approved the completion report and the mandatory documents (allow 6–8 weeks)' }
+  };
+  // Enhanced SFEC (from 1 Dec 2026): no Milestone 1 payment; the Programme Partner pays the whole grant plus the client's SFEC in one amount at completion
+  var WHEN_ENH = {
+    cu:  { what:'The client pays its <b>whole share upfront</b>', sub:'plus the full GST on the project', when:'At project start' },
+    fin: { what:'The Programme Partner pays the <b>grant and the client’s SFEC</b>', sub:'', when:'After the Partner has approved the completion report and the mandatory documents (allow 6–8 weeks). No Milestone 1 payment with Enhanced SFEC.' }
   };
   var METHODS = {
     prorata:    { name:'Share of every amount received', sub:'the partner receives its share % of each amount as it comes in' },
@@ -469,7 +492,12 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     tranche: { '30-70':[0,.3,.6,1], '50-50':[0,.3,.6,1], '30-40-30':null, 'upfront':[0,.6,1] },
     slices:  { '30-70':[.1,.3,.6,1], '50-50':[.1,.3,.6,1], '30-40-30':[.1,.3,.5,.7,1], 'upfront':null }
   };
-  var state = { name:'', share:75, custom:70, sum:30000, sme:true, sched:'30-70', method:'prorata', days:30, pgst:false, pview:false, peff:75000, ceff:18000 };
+  // with Enhanced SFEC there is no Milestone 1 receipt: the slice tied to it is paid with the client's next payment
+  var CUM_ENH = {
+    tranche: { '30-70':[0,.6,1], '50-50':[0,.6,1], '30-40-30':null, 'upfront':[0,1] },
+    slices:  { '30-70':[.1,.6,1], '50-50':[.1,.6,1], '30-40-30':[.1,.5,.7,1], 'upfront':null }
+  };
+  var state = { name:'', share:75, custom:70, sum:30000, sme:true, sched:'30-70', method:'prorata', days:30, pgst:false, pview:false, peff:75000, ceff:18000, sfec:'none', sfecBal:10000 };
 
   function $(id){ return document.getElementById(id); }
   function r2(n){ return Math.round(n*100)/100; }
@@ -484,15 +512,22 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
   function receipts(){
     var rate = state.sme ? 0.7 : 0.5, sum = state.sum;
     var grant = Math.min(r2(rate*sum), CAP), client = r2(sum - grant), gst = r2(GST_RATE*sum);
-    var s = SCHED[state.sched], out = [], acc = 0;
-    s.steps.forEach(function(st, i){
+    var off = state.sfec === 'enh' ? Math.min(state.sfecBal, r2(SFEC_RATE*client)) : 0;
+    var enh = off > 0.004;
+    var steps = SCHED[state.sched].steps.filter(function(st){ return !(enh && st.key === 'm1'); });
+    var nClient = steps.filter(function(st){ return st.who === 'client'; }).length, cIdx = 0, offAcc = 0;
+    var out = [], acc = 0;
+    steps.forEach(function(st, i){
       var base = st.who === 'client' ? client : grant;
-      var amt = r2(base*st.pct);
-      if (i === s.steps.length - 1) amt = r2(sum - acc);
+      var amt = r2(base*st.pct), o = 0, gross = amt;
+      if (enh && st.who === 'client'){ cIdx++; o = (cIdx === nClient) ? r2(off - offAcc) : r2(off*st.pct); offAcc = r2(offAcc + o); amt = r2(gross - o); }
+      if (enh && st.key === 'fin') amt = r2(grant + off);
+      if (i === steps.length - 1) amt = r2(sum - acc);
       acc = r2(acc + amt);
-      out.push({ i:i, who:st.who, key:st.key, pct:st.pct, amt:amt, cum:acc, gst:(st.key==='c1'||st.key==='cu') ? gst : 0 });
+      out.push({ i:i, who:st.who, key:st.key, pct:st.pct, amt:amt, gross:gross, off:o, cum:acc, gst:(st.key==='c1'||st.key==='cu') ? gst : 0 });
     });
-    return { grant:grant, client:client, gst:gst, sum:sum, steps:out };
+    return { grant:grant, client:client, gst:gst, sum:sum, steps:out, enh:enh, off:off, clientNet:r2(client - off), ppTotal: enh ? r2(grant + off) : grant,
+             limited: enh && off < r2(SFEC_RATE*client) - 0.004 };
   }
   // entitlement (cumulative amount due to the partner) after each step, for a given method; null if not covered
   function entitled(method, rec, share){
@@ -501,7 +536,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     else if (method === 'retain'){ rec.steps.forEach(function(s){ out.push(Math.min(Math.max(r2(s.cum - cs),0), ps)); }); }
     else if (method === 'completion'){ rec.steps.forEach(function(s,i){ out.push(i===n-1 ? ps : 0); }); }
     else if (method === 'first'){ rec.steps.forEach(function(){ out.push(ps); }); }
-    else { var c = CUM[method][state.sched]; if (!c) return null; c.forEach(function(x){ out.push(r2(ps*x)); }); }
+    else { var c = (rec.enh ? CUM_ENH : CUM)[method][state.sched]; if (!c) return null; c.forEach(function(x){ out.push(r2(ps*x)); }); }
     return out;
   }
   function payouts(ent){ var out = [], prev = 0; ent.forEach(function(e){ out.push(r2(e - prev)); prev = e; }); return out; }
@@ -518,7 +553,9 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
 
     // story
     var who = state.sme ? 'an SME client' : 'a non-SME client';
-    var story = 'On a <strong>' + fmt(rec.sum) + '</strong> project for ' + who + ', CET Global receives the project sum in <strong>' + rec.steps.length + ' payments</strong>: <strong>' + fmt(rec.client) + '</strong> from the client and <strong>' + fmt(rec.grant) + '</strong> from the grant. ';
+    var story = rec.enh
+      ? 'On a <strong>' + fmt(rec.sum) + '</strong> project for ' + who + ' using <strong>Enhanced SFEC</strong>, CET Global receives the project sum in <strong>' + rec.steps.length + ' payments</strong>: <strong>' + fmt(rec.clientNet) + '</strong> from the client (its ' + fmt(rec.client) + ' share less its ' + fmt(rec.off) + ' SFEC offset) and <strong>' + fmt(rec.ppTotal) + '</strong> from the Programme Partner (the ' + fmt(rec.grant) + ' grant plus the client’s SFEC) in one amount after the completion report is approved. '
+      : 'On a <strong>' + fmt(rec.sum) + '</strong> project for ' + who + ', CET Global receives the project sum in <strong>' + rec.steps.length + ' payments</strong>: <strong>' + fmt(rec.client) + '</strong> from the client and <strong>' + fmt(rec.grant) + '</strong> from the grant. ';
     if (isFixed()) story += '<strong>' + esc(nm) + '</strong>’s effort is a fixed <strong>' + fmt(ps) + '</strong> (' + shareLabel + ' of the project sum) and CET Global’s own effort is <strong>' + fmt(cs) + '</strong>. Each amount received is split in that proportion, so ' + esc(nm) + ' is paid in <strong>' + nPay + (nPay===1?' payment':' payments') + '</strong>, each within ' + state.days + ' days of CET Global receiving the money that triggers it, and reaches its full ' + fmt(ps) + ' with the final grant, while CET Global retains its ' + fmt(cs) + ' across the same payments. ';
     else if (covered) story += '<strong>' + esc(nm) + '</strong> receives <strong>' + fmt(ps) + '</strong> (' + shareLabel + ' of the project sum) in <strong>' + nPay + (nPay===1?' payment':' payments') + '</strong>, each within ' + state.days + ' days of CET Global receiving the money that triggers it, and CET Global keeps <strong>' + fmt(cs) + '</strong>. ';
     else story += '<strong>' + esc(nm) + '</strong> is due <strong>' + fmt(ps) + '</strong> (' + shareLabel + ' of the project sum). ';
@@ -528,8 +565,11 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     // tiles
     $('tiles').innerHTML =
       '<div class="tile"><div class="k">Project sum</div><div class="v">' + fmt(rec.sum) + '</div><div class="s">' + (isFixed() ? 'Before GST: ' + esc(nm) + '’s effort ' + fmt(ps) + ' + CET Global’s effort ' + fmt(cs) + '.' : 'Before GST. The basis for every share.') + '</div></div>' +
-      '<div class="tile pp"><div class="k">Grant pays (' + pct((state.sme?70:50)) + ')</div><div class="v">' + fmt(rec.grant) + '</div><div class="s">Paid to CET Global by the Programme Partner, 30% then 70%.</div></div>' +
-      '<div class="tile you"><div class="k">Client pays</div><div class="v">' + fmt(rec.client) + '</div><div class="s">Its share of the project sum, paid to CET Global ' + (state.sched==='upfront' ? 'upfront' : 'in ' + SCHED[state.sched].label.toLowerCase()) + '.</div></div>' +
+      (rec.enh
+        ? '<div class="tile pp"><div class="k">Programme Partner pays</div><div class="v">' + fmt(rec.ppTotal) + '</div><div class="s">The ' + pct((state.sme?70:50)) + ' grant ' + fmt(rec.grant) + ' plus the client’s SFEC ' + fmt(rec.off) + ', in one amount at completion. No Milestone 1 payment.</div></div>' +
+          '<div class="tile you"><div class="k">Client pays</div><div class="v">' + fmt(rec.clientNet) + '</div><div class="s">Its ' + fmt(rec.client) + ' share less the ' + fmt(rec.off) + ' SFEC offset, paid to CET Global ' + (state.sched==='upfront' ? 'upfront' : 'in ' + SCHED[state.sched].label.toLowerCase()) + '.</div></div>'
+        : '<div class="tile pp"><div class="k">Grant pays (' + pct((state.sme?70:50)) + ')</div><div class="v">' + fmt(rec.grant) + '</div><div class="s">Paid to CET Global by the Programme Partner, 30% then 70%.</div></div>' +
+          '<div class="tile you"><div class="k">Client pays</div><div class="v">' + fmt(rec.client) + '</div><div class="s">Its share of the project sum, paid to CET Global ' + (state.sched==='upfront' ? 'upfront' : 'in ' + SCHED[state.sched].label.toLowerCase()) + '.</div></div>') +
       '<div class="tile gst"><div class="k">GST, 1st invoice</div><div class="v">' + fmt(rec.gst) + '</div><div class="s">9% on the project sum, billed to the client. Not shared.</div></div>' +
       '<div class="tile partner"><div class="k">' + esc(nm) + (isFixed() ? '’s effort – fixed (' : ' receives (') + shareLabel + ')</div><div class="v">' + fmt(ps) + '</div><div class="s">' + (covered ? 'In ' + nPay + (nPay===1?' payment':' payments') + ' · ' + METHODS[state.method].name.toLowerCase() : 'Payout timing not covered by this method') + (state.pgst ? ' · plus GST on its invoices' : '') + '</div></div>' +
       '<div class="tile cetg staff-only"><div class="k">' + (isFixed() ? 'CET Global’s effort (' : 'CET Global keeps (') + pct(100 - share*100) + ')</div><div class="v">' + fmt(cs) + '</div><div class="s">' + (isFixed() ? 'Retained out of every receipt, in the same proportion.' : 'Project management, grant application, compliance and reporting.') + '</div></div>';
@@ -540,12 +580,14 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     $('head').innerHTML = head;
     var rows = '', cum = 0, anyNeg = false, cumPaid = 0;
     rec.steps.forEach(function(s, i){
-      var w = WHEN[s.key], p = pays[i], keep = r2(s.amt - p), pos = covered ? r2(s.cum - ent[i]) : s.cum;
+      var w = (rec.enh && WHEN_ENH[s.key]) ? WHEN_ENH[s.key] : WHEN[s.key], p = pays[i], keep = r2(s.amt - p), pos = covered ? r2(s.cum - ent[i]) : s.cum;
       cumPaid = r2(cumPaid + p);
       if (p > s.amt + 0.004) anyNeg = true;
       var sub = w.sub ? (w.sub + (s.who==='client' ? '' : '')) : (s.who==='client' ? pct(s.pct*100) + ' of the client’s share' : '');
       if (s.who==='client' && w.sub) sub = pct(s.pct*100) + ' of the client’s share, ' + w.sub;
-      var recv = '<td class="n recv ' + (s.who==='client'?'you':'pp') + '" data-label="CET Global receives"><span class="amt">' + fmt(s.amt) + '</span><span class="from">' + (s.who==='client' ? 'from the client' : 'from the grant') + (s.gst ? ' · + ' + fmt(s.gst) + ' GST' : '') + '</span></td>';
+      if (s.off) sub = pct(s.pct*100) + ' of the client’s share ' + fmt(s.gross) + ', less ' + fmt(s.off) + ' SFEC offset' + (w.sub ? ', ' + w.sub : '');
+      if (rec.enh && s.key === 'fin') sub = 'the whole grant ' + fmt(rec.grant) + ' plus the client’s SFEC ' + fmt(rec.off);
+      var recv = '<td class="n recv ' + (s.who==='client'?'you':'pp') + '" data-label="CET Global receives"><span class="amt">' + fmt(s.amt) + '</span><span class="from">' + (s.who==='client' ? 'from the client' : (rec.enh && s.key==='fin' ? 'grant + SFEC' : 'from the grant')) + (s.gst ? ' · + ' + fmt(s.gst) + ' GST' : '') + '</span></td>';
       var by = covered ? (p > 0.004 ? 'Within ' + state.days + ' days of CET Global receiving this amount' : 'No payout at this step') : 'See note below';
       rows += '<tr>' +
         '<td class="pname" data-label="Payment">' + (i+1) + '<small>' + esc(w.when) + '</small></td>' +
@@ -560,7 +602,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     $('rows').innerHTML = rows;
     $('foot').innerHTML = '<tr><th data-label="">Total</th><th></th><td class="n" data-label="CET Global receives">' + fmt(rec.sum) + '<br><small style="font-weight:400;color:var(--muted)">+ ' + fmt(rec.gst) + ' GST from the client</small></td><td class="n pt" data-label="' + esc(nm) + ' receives">' + (covered ? fmt(ps) : '—') + '</td>' + (state.pgst ? '<td class="n pt" data-label="GST on partner invoice">' + (covered ? fmt(r2(ps*GST_RATE)) : '—') + '</td>' : '') + '<td></td><td class="n pt" data-label="Running total">' + (covered ? fmt(ps) : '—') + '</td>' + (pv ? '' : '<td class="n cg staff-only" data-label="CET Global keeps">' + fmt(cs) + '<br><small style="font-weight:400;color:var(--muted)">CET Global keeps</small></td>') + '</tr>';
 
-    $('foot1').textContent = (isFixed() ? nm + '’s amount is fixed at its quoted effort of ' + fmt(ps) + '; CET Global’s effort of ' + fmt(cs) + ' is the balance of the ' + fmt(rec.sum) + ' project sum before GST. Every amount received is split ' + shareLabel + ' / ' + pct(100 - share*100) + ', so ' + nm + ' is paid regularly as the money comes in and CET Global retains its effort fee in the same way. ' : (covered ? nm + '’s share is ' + shareLabel + ' of the project sum before GST, paid out ' + METHODS[state.method].sub + '. ' : '')) + 'Each payout is made within ' + state.days + ' days of CET Global receiving cleared funds, against ' + nm + '’s invoice' + (state.pgst ? ' (plus 9% GST, as ' + nm + ' is GST-registered)' : '') + '. No payout is due on money CET Global has not received. The final payout follows the Programme Partner’s acceptance of the completion report and all mandatory documents.';
+    $('foot1').textContent = (isFixed() ? nm + '’s amount is fixed at its quoted effort of ' + fmt(ps) + '; CET Global’s effort of ' + fmt(cs) + ' is the balance of the ' + fmt(rec.sum) + ' project sum before GST. Every amount received is split ' + shareLabel + ' / ' + pct(100 - share*100) + ', so ' + nm + ' is paid regularly as the money comes in and CET Global retains its effort fee in the same way. ' : (covered ? nm + '’s share is ' + shareLabel + ' of the project sum before GST, paid out ' + METHODS[state.method].sub + '. ' : '')) + 'Each payout is made within ' + state.days + ' days of CET Global receiving cleared funds, against ' + nm + '’s invoice' + (state.pgst ? ' (plus 9% GST, as ' + nm + ' is GST-registered)' : '') + '. No payout is due on money CET Global has not received. The final payout follows the Programme Partner’s acceptance of the completion report and all mandatory documents.' + (rec.enh ? ' With Enhanced SFEC the client’s ' + fmt(rec.off) + ' SFEC offset is deducted from its payments and the Programme Partner pays the grant and the SFEC to CET Global in one amount at completion; there is no Milestone 1 payment, so a larger part of ' + nm + '’s share arrives with the final payment.' : '');
 
     var warn = $('warn');
     if (!covered){ warn.hidden = false; warn.className = 'callout'; warn.textContent = 'The “' + METHODS[state.method].name + '” method is not defined in the MOU for this client payment schedule. Choose another method, or agree the payout timing in the project addendum.'; }
@@ -570,8 +612,14 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     // method availability note
     var note = $('methodNote'), m = state.method;
     var unavail = (m==='tranche' && state.sched==='30-40-30') || (m==='slices' && state.sched==='upfront');
-    note.hidden = !unavail;
+    var shifted = rec.enh && !unavail && (m==='tranche' || m==='slices');
+    note.hidden = !(unavail || shifted);
+    note.className = 'note' + (shifted ? ' info' : '');
     if (unavail) note.textContent = m==='tranche' ? 'The 30/30/40 method is written for 2 client payments (and for the upfront case: 60% at Milestone 1, 40% at the Final Milestone). It is not defined for 3 client payments.' : 'Set slices are defined for 2 or 3 client payments only, not for the upfront case.';
+    else if (shifted) note.textContent = 'With Enhanced SFEC the Programme Partner makes no Milestone 1 payment, so the slice of the share tied to Milestone 1 is shown as paid with the client’s next payment' + (state.sched==='upfront' ? ' (here: nothing until the final payment)' : '') + '. Confirm this timing in the project addendum.';
+    // SFEC controls
+    $('schedHint').textContent = rec.enh ? 'With Enhanced SFEC the Programme Partner pays the whole grant, plus the client’s SFEC, in one amount after it approves the completion report. There is no Milestone 1 payment.' : 'Whichever schedule the client is on, the Programme Partner pays the grant in two parts: 30% at Milestone 1 and 70% at the Final Milestone.';
+    if (state.sfec === 'enh') $('sfecCalc').innerHTML = rec.enh ? 'SFEC offset <b>' + fmt(rec.off) + '</b>' + (rec.limited ? ' (limited by the balance)' : ' (90% of the client’s share)') + ' · client pays <b>' + fmt(rec.clientNet) + '</b> · Programme Partner pays <b>' + fmt(rec.ppTotal) + '</b> at completion' : 'No SFEC balance, so the standard two-milestone structure applies.';
 
     renderCompare(rec, share, ps, cs);
     fitTable();
@@ -620,6 +668,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     p.set('sum', state.sum); p.set('sme', state.sme ? '1' : '0'); p.set('sched', state.sched); p.set('method', state.method); p.set('days', state.days);
     if (state.pgst) p.set('pgst', '1'); if (state.pview) p.set('pview', '1');
     if (isFixed()){ p.set('peff', state.peff); p.set('ceff', state.ceff); }
+    if (state.sfec === 'enh'){ p.set('sfec', 'enh'); p.set('sfecbal', state.sfecBal); }
     history.replaceState(null, '', '#' + p.toString());
   }
   function readHash(){
@@ -633,6 +682,7 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     if (p.get('days')) state.days = Math.min(Math.max(parseInt(p.get('days'),10)||30,1),90);
     state.pgst = p.get('pgst') === '1'; state.pview = p.get('pview') === '1';
     if (p.get('peff')) state.peff = parseMoney(p.get('peff')); if (p.get('ceff')) state.ceff = parseMoney(p.get('ceff'));
+    state.sfec = p.get('sfec') === 'enh' ? 'enh' : 'none'; if (p.get('sfecbal')) state.sfecBal = parseMoney(p.get('sfecbal'));
   }
   function syncControls(){
     $('pname').value = state.name;
@@ -644,6 +694,8 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     document.querySelectorAll('[data-method]').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.method === state.method); });
     $('days').value = state.days; $('pgst').checked = state.pgst; $('pview').checked = state.pview;
     document.body.classList.toggle('partner-view', state.pview);
+    document.querySelectorAll('[data-sfec]').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.sfec === state.sfec); });
+    $('sfecWrap').hidden = state.sfec !== 'enh'; $('sfecBal').value = state.sfecBal.toLocaleString('en-SG');
     var fx = isFixed();
     $('fixedWrap').hidden = !fx; $('sumHint').hidden = !fx;
     $('peff').value = state.peff.toLocaleString('en-SG'); $('ceff').value = state.ceff.toLocaleString('en-SG');
@@ -677,6 +729,9 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
     $('ceff').addEventListener('input', function(){ state.ceff = parseMoney(this.value); syncFixed(); render(); });
     $('peff').addEventListener('blur', function(){ this.value = state.peff.toLocaleString('en-SG'); });
     $('ceff').addEventListener('blur', function(){ this.value = state.ceff.toLocaleString('en-SG'); });
+    document.querySelectorAll('[data-sfec]').forEach(function(b){ b.addEventListener('click', function(){ state.sfec = this.dataset.sfec; syncControls(); render(); }); });
+    $('sfecBal').addEventListener('input', function(){ state.sfecBal = parseMoney(this.value); render(); });
+    $('sfecBal').addEventListener('blur', function(){ this.value = state.sfecBal.toLocaleString('en-SG'); });
     $('pview').addEventListener('change', function(){ state.pview = this.checked; document.body.classList.toggle('partner-view', state.pview); render(); });
     $('printBtn').addEventListener('click', function(){ window.print(); });
     $('copyLink').addEventListener('click', function(){ var b = this; (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(function(){ b.textContent = 'Link copied'; setTimeout(function(){ b.textContent = 'Copy link'; }, 1800); }, function(){ prompt('Copy this link:', location.href); }); });
