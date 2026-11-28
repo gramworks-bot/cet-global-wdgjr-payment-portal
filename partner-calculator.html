@@ -270,6 +270,27 @@ body:not(.partner-view) .pview-banner{display:none}
 .part{scroll-margin-top:64px}
 @media (max-width:720px){ .tab{padding:6px 9px;font-size:.82rem} .btn-s{padding:6px 9px} }
 
+/* Partner page colour scheme: deliberately unlike the client payment schedule (orange / yellow / blue lanes on a light header).
+   Here the table has a dark navy header, plain "CET Global receives" cells with a small coloured source tag, and the partner's lane in violet. */
+:root{ --pt:#5B3FA6; --pt-ink:#4A2F92; --pt-soft:#EFEAFB; --pt-line:#C9BCEF; --hd:#1B3A4E; --hd-on:#FFFFFF; --hd-pt:#5B3FA6; --hd-cg:#1F7A6D; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --pt:#B49CF2; --pt-ink:#C9B8F7; --pt-soft:#261D40; --pt-line:#4B3A80; --hd:#0B1820; --hd-on:#E8EEF4; --hd-pt:#4B3A80; --hd-cg:#246B5F; } }
+:root[data-theme="dark"]{ --pt:#B49CF2; --pt-ink:#C9B8F7; --pt-soft:#261D40; --pt-line:#4B3A80; --hd:#0B1820; --hd-on:#E8EEF4; --hd-pt:#4B3A80; --hd-cg:#246B5F; }
+.seg.partner .seg-btn[aria-pressed="true"] small{color:var(--pt-ink)}
+.inline-fields .calc b{color:var(--pt-ink)}
+.tile.partner{border-top-color:var(--pt);background:var(--pt-soft);border-color:var(--pt-line)} .tile.partner .v,.tile.partner .k{color:var(--pt-ink)}
+#flow thead th{background:var(--hd);color:var(--hd-on)}
+#flow thead th.pt{background:var(--hd-pt);color:#fff} #flow thead th.cg{background:var(--hd-cg);color:#fff}
+#flow th.pt,#flow td.pt{background:var(--pt-soft)}
+#flow td.pt.n{color:var(--pt-ink)}
+#flow tfoot td.pt{color:var(--pt-ink);background:var(--pt-soft);border-top:2px solid var(--pt-line)}
+#flow td.recv.you,#flow td.recv.pp{background:transparent}
+#flow td.recv .amt{color:var(--fg)!important}
+#flow td.recv .from{display:inline-block;margin-top:4px;padding:1px 8px;border-radius:999px;font-size:.76rem;max-width:none}
+#flow td.recv.you .from{background:var(--you-soft);color:var(--you-ink)}
+#flow td.recv.pp .from{background:var(--pp-soft);color:var(--pp-ink)}
+#flow tbody tr:nth-child(even) td:not(.pt):not(.cg){background:var(--surface-2)}
+.table-wrap.stack #flow td.pname{background:var(--hd);color:var(--hd-on)} .table-wrap.stack #flow td.pname small{color:var(--hd-on);opacity:.8}
+
 /* Partner summary: only section 1, for a picture or a one-page PDF to send to the partner */
 .btn-s[aria-pressed="true"]{background:var(--pp);color:var(--pp-on);border-color:var(--pp)}
 .sum-meta{display:none;color:var(--muted);font-size:.86rem;margin-top:14px}
