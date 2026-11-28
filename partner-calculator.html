@@ -392,6 +392,7 @@ body.sum-fit .footnote,body.sum-fit .sum-meta,body.sum-fit .callout{font-size:.7
       <span class="label" style="margin-top:16px" id="shareLabel">Partner's share of the project sum</span>
       <div class="seg stack partner" role="group" aria-labelledby="shareLabel">
         <button type="button" class="seg-btn" data-share="75" aria-pressed="true">75%<small>partner's projects 1 to 3</small></button>
+        <button type="button" class="seg-btn" data-share="70" aria-pressed="false">70%<small>Associate Consultant's projects 1 to 3</small></button>
         <button type="button" class="seg-btn" data-share="80" aria-pressed="false">80%<small>partner's 4th project onwards</small></button>
         <button type="button" class="seg-btn" data-share="10" aria-pressed="false">10%<small>referral only, no delivery</small></button>
         <button type="button" class="seg-btn" data-share="custom" aria-pressed="false">Custom<small>as agreed in writing</small></button>
@@ -752,7 +753,7 @@ body.sum-fit .footnote,body.sum-fit .sum-meta,body.sum-fit .callout{font-size:.7
     state.client = p.get('client') ? p.get('client').slice(0,60) : '';
     state.carried = !!p.get('sum') && !p.get('share');
     if (p.get('name')) state.name = p.get('name').slice(0,60);
-    var sh = p.get('share'); if (sh){ if (sh.charAt(0)==='c'){ state.share='custom'; state.custom = parseFloat(sh.slice(1))||70; } else if (['75','80','10'].indexOf(sh)>=0) state.share = parseInt(sh,10); }
+    var sh = p.get('share'); if (sh){ if (sh.charAt(0)==='c'){ state.share='custom'; state.custom = parseFloat(sh.slice(1))||70; } else if (['75','70','80','10'].indexOf(sh)>=0) state.share = parseInt(sh,10); }
     if (p.get('sum')) state.sum = parseMoney(p.get('sum')) || 30000;
     if (p.get('sme')) state.sme = p.get('sme') !== '0';
     if (SCHED[p.get('sched')]) state.sched = p.get('sched');
