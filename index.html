@@ -289,6 +289,19 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
 .jump a:hover{border-color:var(--line-strong)}
 .part,.tile.ccp{scroll-margin-top:64px}
 @media (max-width:720px){ .tab{padding:6px 9px;font-size:.82rem} .btn-s{padding:6px 9px} }
+tfoot tr.berow td{padding-top:0}
+.table-wrap.stack td.be-cell{display:block}
+.table-wrap.stack td.be-cell::before{display:none}
+td .be-row{display:block;padding:8px 12px;border:1px solid var(--ccp-line);border-radius:8px;background:var(--surface);color:var(--fg);font-size:.88rem;line-height:1.5}
+/* Client summary: only section 1 (story, tiles, payment table), for a screenshot or a one-page PDF */
+.btn-s[aria-pressed="true"]{background:var(--pp);color:var(--pp-on);border-color:var(--pp)}
+.sum-meta{display:none;color:var(--muted);font-size:.86rem;margin-top:14px}
+body.summary .lede,body.summary .setup-head,body.summary .controls,body.summary .jump,body.summary .tile.ccp,body.summary section[aria-labelledby="h2p"],body.summary .sources{display:none!important}
+body.summary .sum-meta{display:block}
+body.summary .part{margin-bottom:0}
+body.summary .masthead{margin-bottom:26px}
+@media print{ .table-wrap{overflow:visible!important} body.summary .page{zoom:.82} body.summary .tiles{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px} body.summary .tile .k{min-height:0} body.summary{font-size:14px} body.summary .brand img{height:44px} body.summary h1{font-size:1.6rem} body.summary .tile{padding:12px 12px 14px} body.summary .tile .v{font-size:1.25rem} body.summary th,body.summary td{padding:9px 9px;font-size:.84rem} body.summary .story{margin-bottom:14px} }
+@page{size:A4 landscape;margin:11mm}
 @media print{
   .topbar,.chips,.jump,.setup-head span{display:none!important}
   body{background:#fff}
@@ -308,6 +321,7 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
     </div>
     <div class="tb-actions">
       <button class="btn-s" type="button" id="copyLink">Copy link</button>
+      <button class="btn-s" type="button" id="sumBtn" aria-pressed="false" title="Shows only section 1, How your funding works, ready to screenshot or save as a PDF for the client">Client summary</button>
       <button class="btn-s" type="button" id="printBtn">Print / save as PDF</button>
       <button class="btn-s" type="button" id="resetBtn">Reset</button>
     </div>
@@ -389,6 +403,8 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
       </table>
     </div>
     <p class="footnote">All amounts in Singapore dollars. Figures are estimates. The grant and SFEC are subject to eligibility and to approval by the Programme Partner and SWDA; neither is guaranteed. GST is 9% on the full project cost and is not covered by the grant or by SFEC.</p>
+
+    <p class="sum-meta" id="sumMeta"></p>
 
     <div class="tile ccp" id="ccp" aria-label="Career Conversion Programmes">
       <div>
@@ -699,12 +715,18 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
     var dashCols = c.enh ? 4 : 2;  // empty numeric cells before the 'You pay' column
     var dashes = ''; for (var d=0; d<dashCols; d++) dashes += '<td class="n empty" data-label=""></td>';
     var onModes = ccp.modes.filter(function(m){ return m.on; });
+    function beText(k){
+      var c2 = state.ccp[k], md = ccp.modes.filter(function(x){ return x.key === k; })[0];
+      return '<b>Nett-to-zero, conservative case.</b> ' + (state.client ? esc(state.client) + '\u2019s' : 'Your') + ' cost is ' + fmt(c.netCost) + ' including GST' + (sfecOn ? ' after SFEC' : '') + '. Each employee under 40 on ' + fmt(c2.sal) + ' a month brings ' + fmt(md.per) + ' \u00d7 ' + c2.m + ' months = ' + fmt(r2(md.per*c2.m)) + ' of salary support, so <b>' + c2.n + ' employee' + (c2.n===1?'':'s') + '</b> ' + (c2.n===1?'covers':'cover') + ' it' + (md.amt - c.netCost > 0.004 ? ', with ' + fmt(r2(md.amt - c.netCost)) + ' to spare.' : '.') + ' Subject to CCP approval and each employee\u2019s eligibility.';
+    }
+    var beKey = ['pnt','jrr'].filter(function(k){ return state.ccp[k].on && state.ccp[k].be; })[0];
     foot += '<tr class="ccprow"><th data-label="">CCP salary support<small>If activated &middot; paid over the training period</small></th>' +
       '<td class="when" data-label="Basis">' + (onModes.length
         ? onModes.map(function(m){ return CCP_NAME[m.key] + ': ' + fmt(m.per) + ' a month \u00d7 ' + m.m + ' month' + (m.m===1?'':'s') + ' \u00d7 ' + m.n + ' (' + m.basis + ')'; }).join('; ') + '.'
         : 'No CCP mode activated. Select a mode in the CCP tile below to see the support here.') + '</td>' +
       dashes + '<td class="n pay' + (ccp.total > 0 ? ' credit' : '') + '" data-label="Support to you">' + (ccp.total > 0 ? neg(ccp.total) : 'S$0') + '</td>' +
       '<td class="pp" data-label="Paid by"><span class="cond">' + (ccp.total > 0 ? 'Paid by SWDA through the CCP Programme Partner as a post-WDG(JR+) standalone engagement, not through this project.' : 'A separate engagement with CET Global after this project, or standalone.') + '</span></td></tr>';
+    if (beKey) foot += '<tr class="ccprow berow"><td class="be-cell" colspan="' + (c.enh ? 8 : 6) + '" data-label=""><span class="be-row">' + beText(beKey) + '</span></td></tr>';
     if (c.cur){
       foot += '<tr class="sfrow"><th data-label="">SFEC refund<small>Paid to you after the project</small></th>' +
         '<td class="when" data-label="When it is due">' + (state.sfec==='cur-full'
@@ -737,7 +759,7 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
       var el = $('be-' + k), c2 = state.ccp[k], md = ccp.modes.filter(function(x){ return x.key === k; })[0];
       var show = c2.on && c2.be;
       el.hidden = !show;
-      if (show) el.innerHTML = '<b>Nett-to-zero, conservative case.</b> The client\u2019s cost is ' + fmt(c.netCost) + ' including GST' + (sfecOn ? ' after SFEC' : '') + '. Each employee under 40 on ' + fmt(c2.sal) + ' a month brings ' + fmt(md.per) + ' \u00d7 ' + c2.m + ' months = ' + fmt(r2(md.per*c2.m)) + ', so <b>' + c2.n + ' employee' + (c2.n===1?'':'s') + '</b> ' + (c2.n===1?'covers':'cover') + ' it' + (md.amt - c.netCost > 0.004 ? ', with ' + fmt(r2(md.amt - c.netCost)) + ' to spare.' : '.') + ' Subject to CCP approval and each employee\u2019s eligibility.';
+      if (show) el.innerHTML = beText(k);
     });
     $('ccpSummary').innerHTML = ccp.total > 0
       ? 'Activated for this client<b>' + fmt(ccp.total) + '</b>' + onModes.map(function(m){ return CCP_NAME[m.key]; }).join(' + ') + ' \u00b7 shown under \u201cTotal paid\u201d above.'
@@ -775,7 +797,7 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
   tpcIn.addEventListener('blur', function(){ formatInput(tpcIn, state.tpc); });
   tpcIn.addEventListener('focus', function(){ tpcIn.select(); });
   Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(ch){
-    ch.addEventListener('click', function(){ state.tpc = parseFloat(ch.getAttribute('data-v')); formatInput(tpcIn, state.tpc); render(); });
+    ch.addEventListener('click', function(){ state.tpc = parseFloat(ch.getAttribute('data-v')); if (ch.classList.contains('sf')){ state.sfec = 'enh'; if (state.sfecBal < 10000) state.sfecBal = 10000; syncControls(); } else formatInput(tpcIn, state.tpc); render(); });
   });
   var balIn = $('sfecBal');
   balIn.addEventListener('input', function(){ state.sfecBal = parseMoney(balIn.value); render(); });
@@ -853,6 +875,15 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
     else done('Copy from the address bar');
   });
   $('printBtn').addEventListener('click', function(){ window.print(); });
+  $('sumBtn').addEventListener('click', function(){
+    var on = !document.body.classList.contains('summary');
+    document.body.classList.toggle('summary', on);
+    this.setAttribute('aria-pressed', on ? 'true' : 'false');
+    this.textContent = on ? 'Back to full page' : 'Client summary';
+    $('printBtn').textContent = on ? 'Save summary as PDF' : 'Print / save as PDF';
+    $('sumMeta').textContent = 'Prepared by CET Global Pte Ltd, SWDA pre-approved consultant for WDG(JR+), on ' + new Date().toLocaleDateString('en-SG', {day:'numeric', month:'short', year:'numeric'}) + '. Illustration only; your Letter of Offer and CET Global\u2019s quotation govern.';
+    window.scrollTo(0, 0); fitTable();
+  });
   $('resetBtn').addEventListener('click', function(){ try { history.replaceState(null, '', location.pathname + location.search); } catch(e){} location.reload(); });
 
   readHash(); syncControls(); hashReady = true;
