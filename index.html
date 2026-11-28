@@ -337,7 +337,7 @@ body.sum-fit .footnote,body.sum-fit .sum-meta{font-size:.74rem;margin-top:8px}
   <div class="topbar-in">
     <div class="tabs">
       <a class="tab" href="./index.html" aria-current="page">Client payment schedule</a>
-      <a class="tab" href="./partner-calculator.html">Partner payout <small>staff</small></a>
+      <a class="tab" id="tabPartner" href="./partner-calculator.html" title="Opens the partner calculator with this project's cost, client type, schedule and SFEC carried across">Partner payout <small>staff</small></a>
     </div>
     <div class="tb-actions">
       <button class="btn-s" type="button" id="copyLink">Copy link</button>
@@ -860,6 +860,12 @@ body.sum-fit .footnote,body.sum-fit .sum-meta{font-size:.74rem;margin-top:8px}
     if (state.client) p.set('client', state.client);
     ['pnt','jrr','ant'].forEach(function(k){ var c = state.ccp[k]; if (c.on) p.set(k, [c.n, c.sal, (k==='ant' ? c.rate : c.tier), c.m].join('~')); });
     try { history.replaceState(null, '', '#' + p.toString()); } catch(e){}
+    // carry the project across to the partner calculator
+    var q = new URLSearchParams();
+    q.set('sum', state.tpc); q.set('sme', state.sme ? '1' : '0'); q.set('sched', state.sched);
+    if (state.sfec === 'enh'){ q.set('sfec', 'enh'); q.set('sfecbal', state.sfecBal); }
+    if (state.client) q.set('client', state.client);
+    $('tabPartner').setAttribute('href', './partner-calculator.html#' + q.toString());
   }
   function readHash(){
     var p = new URLSearchParams(location.hash.replace(/^#/, ''));
