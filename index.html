@@ -181,6 +181,10 @@ tfoot tr:last-child td,tfoot tr:last-child th{border-bottom:0}
 .tile.ccp .modes-table td.act{width:1%;white-space:nowrap;vertical-align:top;padding-top:11px}
 .act-btn{border:1px solid var(--ccp-line);background:var(--surface);color:var(--ccp-ink);border-radius:999px;padding:5px 14px;font-family:var(--font-display);font-weight:600;font-size:.84rem;cursor:pointer;white-space:nowrap}
 .act-btn:hover{background:var(--ccp-soft)}
+.chip.sf{border-color:var(--sfec-line);color:var(--sfec-ink);background:var(--sfec-soft)}
+.be-btn{display:block;margin-top:6px;border:1px dashed var(--ccp-line);background:transparent;color:var(--ccp-ink);border-radius:999px;padding:4px 12px;font-family:var(--font-display);font-weight:600;font-size:.78rem;cursor:pointer;white-space:nowrap}
+.be-btn:hover{background:var(--ccp-soft)}
+.fields .be-note{flex-basis:100%;font-size:.88rem;color:var(--ccp-ink);background:var(--ccp-soft);border:1px solid var(--ccp-line);border-radius:8px;padding:6px 10px}
 .act-btn[aria-pressed="true"]{background:var(--ccp);border-color:var(--ccp);color:#FFFFFF}
 .act-btn[aria-pressed="true"]::before{content:"\2713\00a0"}
 .mode-row.on th,.mode-row.on td{background:var(--ccp-soft)}
@@ -337,6 +341,7 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
       <div class="chips" role="group" aria-label="Example amounts">
         <button type="button" class="chip" data-v="15000">15,000</button>
         <button type="button" class="chip" data-v="30000">30,000</button>
+        <button type="button" class="chip sf" data-v="37500" title="An SME's 30% share is S$11,250, so 90% of it uses the full S$10,000 SFEC">37,500 · full SFEC</button>
         <button type="button" class="chip" data-v="50000">50,000</button>
         <button type="button" class="chip" data-v="75000">75,000</button>
         <button type="button" class="chip" data-v="100000">100,000</button>
@@ -398,21 +403,23 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
           <table class="modes-table" aria-label="The three CCP modes: activate the ones proposed to the client">
             <thead><tr><th>Activate</th><th>Mode &middot; when to raise it after WDG(JR+)</th><th>Who it is for</th><th>Who receives the support</th><th>Typical use</th></tr></thead>
             <tbody>
-              <tr class="mode-row" id="row-pnt"><td class="act"><button type="button" class="act-btn" data-ccp="pnt" aria-pressed="false">Activate</button></td><th>Place-and-Train<small>Raise when the client must hire into the redesigned roles</small></th><td>Mid-career jobseekers you hire</td><td>Employer (salary support)</td><td>Filling hard-to-hire growth roles by training career switchers on the job</td></tr>
+              <tr class="mode-row" id="row-pnt"><td class="act"><button type="button" class="act-btn" data-ccp="pnt" aria-pressed="false">Activate</button><button type="button" class="be-btn" data-be="pnt" title="Conservative case: staff under 40 on S$4,000 a month, 70% support for 3 months. Works out how many are needed to cover the client's cost including GST.">Nett to zero</button></td><th>Place-and-Train<small>Raise when the client must hire into the redesigned roles</small></th><td>Mid-career jobseekers you hire</td><td>Employer (salary support)</td><td>Filling hard-to-hire growth roles by training career switchers on the job</td></tr>
               <tr class="mode-inputs" id="inp-pnt" hidden><td colspan="5"><div class="fields">
                 <label>New hires <input type="number" id="pnt-n" min="1" max="99" value="1"></label>
                 <label>Monthly salary <span class="money tiny"><span class="cur">S$</span><input type="text" id="pnt-sal" inputmode="decimal" value="8,500"></span></label>
                 <label>Support tier <select id="pnt-tier"><option value="enh">Enhanced &middot; 90%, cap S$7,500 &middot; aged 40+ or long-term unemployed</option><option value="std">Standard &middot; 70%, cap S$5,000</option></select></label>
                 <label>Months of support <input type="number" id="pnt-m" min="1" max="24" value="3"></label>
                 <span class="calc" id="calc-pnt"></span>
+                <span class="be-note" id="be-pnt" hidden></span>
               </div></td></tr>
-              <tr class="mode-row" id="row-jrr"><td class="act"><button type="button" class="act-btn" data-ccp="jrr" aria-pressed="false">Activate</button></td><th>Job Redesign Reskilling<small>Raise when the redesigned roles are filled by existing staff</small></th><td>Any existing employee moving into a growth role</td><td>Employer (salary support)</td><td>Redeploying staff into redesigned roles instead of retrenching and rehiring</td></tr>
+              <tr class="mode-row" id="row-jrr"><td class="act"><button type="button" class="act-btn" data-ccp="jrr" aria-pressed="false">Activate</button><button type="button" class="be-btn" data-be="jrr" title="Conservative case: staff under 40 on S$4,000 a month, 70% support for 3 months. Works out how many are needed to cover the client's cost including GST.">Nett to zero</button></td><th>Job Redesign Reskilling<small>Raise when the redesigned roles are filled by existing staff</small></th><td>Any existing employee moving into a growth role</td><td>Employer (salary support)</td><td>Redeploying staff into redesigned roles instead of retrenching and rehiring</td></tr>
               <tr class="mode-inputs" id="inp-jrr" hidden><td colspan="5"><div class="fields">
                 <label>Employees reskilled <input type="number" id="jrr-n" min="1" max="99" value="1"></label>
                 <label>Monthly salary <span class="money tiny"><span class="cur">S$</span><input type="text" id="jrr-sal" inputmode="decimal" value="8,500"></span></label>
                 <label>Support tier <select id="jrr-tier"><option value="enh">Enhanced &middot; 90%, cap S$7,500 &middot; aged 40+ or long-term unemployed</option><option value="std">Standard &middot; 70%, cap S$5,000</option></select></label>
                 <label>Months of support <input type="number" id="jrr-m" min="1" max="24" value="3"></label>
                 <span class="calc" id="calc-jrr"></span>
+                <span class="be-note" id="be-jrr" hidden></span>
               </div></td></tr>
               <tr class="mode-row" id="row-ant"><td class="act"><button type="button" class="act-btn" data-ccp="ant" aria-pressed="false">Activate</button></td><th>Attach-and-Train<small>Raise when the client wants to try a candidate before hiring</small></th><td>Jobseekers on work attachment</td><td>Trainee (training allowance); host employer co-funds at least 10%</td><td>Assessing fit before a permanent hire, in sectors with strong placement prospects</td></tr>
               <tr class="mode-inputs" id="inp-ant" hidden><td colspan="5"><div class="fields">
@@ -726,6 +733,12 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
       setText('calc-' + m.key, '');
       $('calc-' + m.key).innerHTML = fmt(m.per) + ' a month (' + m.basis + ') \u00d7 ' + m.m + ' month' + (m.m===1?'':'s') + ' \u00d7 ' + m.n + ' = <b>' + fmt(m.amt) + '</b>' + (m.key==='ant' ? ' funded allowance; the host employer co-funds at least 10% of the prevailing salary.' : ' salary support.');
     });
+    ['pnt','jrr'].forEach(function(k){
+      var el = $('be-' + k), c2 = state.ccp[k], md = ccp.modes.filter(function(x){ return x.key === k; })[0];
+      var show = c2.on && c2.be;
+      el.hidden = !show;
+      if (show) el.innerHTML = '<b>Nett-to-zero, conservative case.</b> The client\u2019s cost is ' + fmt(c.netCost) + ' including GST' + (sfecOn ? ' after SFEC' : '') + '. Each employee under 40 on ' + fmt(c2.sal) + ' a month brings ' + fmt(md.per) + ' \u00d7 ' + c2.m + ' months = ' + fmt(r2(md.per*c2.m)) + ', so <b>' + c2.n + ' employee' + (c2.n===1?'':'s') + '</b> ' + (c2.n===1?'covers':'cover') + ' it' + (md.amt - c.netCost > 0.004 ? ', with ' + fmt(r2(md.amt - c.netCost)) + ' to spare.' : '.') + ' Subject to CCP approval and each employee\u2019s eligibility.';
+    });
     $('ccpSummary').innerHTML = ccp.total > 0
       ? 'Activated for this client<b>' + fmt(ccp.total) + '</b>' + onModes.map(function(m){ return CCP_NAME[m.key]; }).join(' + ') + ' \u00b7 shown under \u201cTotal paid\u201d above.'
       : 'No mode activated<b>S$0</b>Activate a mode on the right to add CCP support to the client\u2019s figures above.';
@@ -768,18 +781,28 @@ td .nb{display:block;font-size:.76rem;font-weight:500;letter-spacing:.02em;line-
   balIn.addEventListener('input', function(){ state.sfecBal = parseMoney(balIn.value); render(); });
   balIn.addEventListener('blur', function(){ formatInput(balIn, state.sfecBal); });
   balIn.addEventListener('focus', function(){ balIn.select(); });
+  Array.prototype.forEach.call(document.querySelectorAll('.be-btn'), function(b){
+    b.addEventListener('click', function(){
+      var k = b.getAttribute('data-be'), c = calc();
+      ['pnt','jrr','ant'].forEach(function(x){ state.ccp[x].on = false; state.ccp[x].be = false; });
+      var m = state.ccp[k]; m.on = true; m.be = true; m.tier = 'std'; m.sal = 4000; m.m = 3;
+      var each = Math.min(r2(0.7*m.sal), 5000) * m.m;
+      m.n = Math.min(Math.max(Math.ceil((c.netCost - 0.004) / each), 1), 99);
+      syncControls(); render();
+    });
+  });
   Array.prototype.forEach.call(document.querySelectorAll('.act-btn'), function(b){
-    b.addEventListener('click', function(){ var k = b.getAttribute('data-ccp'); state.ccp[k].on = !state.ccp[k].on; render(); });
+    b.addEventListener('click', function(){ var k = b.getAttribute('data-ccp'); state.ccp[k].on = !state.ccp[k].on; state.ccp[k].be = false; render(); });
   });
   ['pnt','jrr','ant'].forEach(function(k){
     var n = $(k + '-n'), m = $(k + '-m'), sal = $(k + '-sal');
-    n.addEventListener('input', function(){ var v = parseInt(n.value, 10); state.ccp[k].n = (isFinite(v) && v > 0) ? Math.min(v, 99) : 1; render(); });
-    m.addEventListener('input', function(){ var v = parseInt(m.value, 10); state.ccp[k].m = (isFinite(v) && v > 0) ? Math.min(v, 24) : 1; render(); });
-    sal.addEventListener('input', function(){ state.ccp[k].sal = parseMoney(sal.value); render(); });
+    n.addEventListener('input', function(){ var v = parseInt(n.value, 10); state.ccp[k].n = (isFinite(v) && v > 0) ? Math.min(v, 99) : 1; state.ccp[k].be = false; render(); });
+    m.addEventListener('input', function(){ var v = parseInt(m.value, 10); state.ccp[k].m = (isFinite(v) && v > 0) ? Math.min(v, 24) : 1; state.ccp[k].be = false; render(); });
+    sal.addEventListener('input', function(){ state.ccp[k].sal = parseMoney(sal.value); state.ccp[k].be = false; render(); });
     sal.addEventListener('blur', function(){ formatInput(sal, state.ccp[k].sal); });
     sal.addEventListener('focus', function(){ sal.select(); });
-    if (k === 'ant'){ $('ant-rate').addEventListener('change', function(e){ state.ccp.ant.rate = parseFloat(e.target.value); render(); }); }
-    else { $(k + '-tier').addEventListener('change', function(e){ state.ccp[k].tier = e.target.value; render(); }); }
+    if (k === 'ant'){ $('ant-rate').addEventListener('change', function(e){ state.ccp.ant.rate = parseFloat(e.target.value); state.ccp[k].be = false; render(); }); }
+    else { $(k + '-tier').addEventListener('change', function(e){ state.ccp[k].tier = e.target.value; state.ccp[k].be = false; render(); }); }
   });
   var clientIn = $('client');
   clientIn.addEventListener('input', function(){ state.client = clientIn.value.trim(); render(); });
